@@ -1,0 +1,325 @@
+\begin{lstlisting}[label={lst:explorer},caption={Complete source of the Mini-Novaterra explorer (\texttt{mini\_novaterra\_explorer.html}).}]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini-Novaterra 7x7 Coupled Unified Multiplier Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    input[type="range"] { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 9999px; background: #e2e8f0; outline: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #4f46e5; cursor: pointer; border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3); }
+    input[type="range"].bio-slider::-webkit-slider-thumb { background: #0d9488; }
+    input[type="range"].damage-slider::-webkit-slider-thumb { background: #e11d48; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 font-mono font-bold text-sm">7x7</div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">Mini-Novaterra Unified Multiplier Explorer</h1>
+          <p class="text-xs text-slate-400">Endogenous Leontief-SAM-Biophysical Matrix Solver: <span class="font-mono text-slate-300">y = (I - M)^-1 x</span></p>
+        </div>
+      </div>
+      <div id="stability-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-medium">
+        <span id="stability-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span>Spectral Radius rho(M):</span>
+        <span id="spectral-radius-val" class="font-mono font-bold text-white tabular-nums">0.684</span>
+        <span id="stability-label" class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-[10px] uppercase font-semibold">Stable</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 flex flex-col lg:flex-row gap-6">
+    <aside class="w-full lg:w-[380px] shrink-0 space-y-5">
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">Preset Policy Scenarios</h2>
+          <button id="btn-reset" type="button" class="text-xs font-medium text-slate-500 hover:text-indigo-600 underline">Reset All</button>
+        </div>
+        <div class="grid grid-cols-1 gap-2">
+          <button type="button" data-preset="A" class="preset-btn text-left px-3 py-2 rounded-lg border border-indigo-200 bg-indigo-50/70">
+            <div class="flex justify-between"><span class="text-xs font-semibold">Policy A: +10 Bn Industrial Stimulus</span><span class="font-mono text-[10px]">x_A1 = 10</span></div>
+          </button>
+          <button type="button" data-preset="B" class="preset-btn text-left px-3 py-2 rounded-lg border border-slate-200 bg-white">
+            <div class="flex justify-between"><span class="text-xs font-semibold">Policy B: +10 Bn Low-Income Transfer</span><span class="font-mono text-[10px]">x_H1 = 10</span></div>
+          </button>
+          <button type="button" data-preset="C" class="preset-btn text-left px-3 py-2 rounded-lg border border-slate-200 bg-white">
+            <div class="flex justify-between"><span class="text-xs font-semibold">Policy C: +10 Bn Credit Facility</span><span class="font-mono text-[10px]">x_Fin = 10</span></div>
+          </button>
+          <button type="button" data-preset="D" class="preset-btn text-left px-3 py-2 rounded-lg border border-slate-200 bg-white">
+            <div class="flex justify-between"><span class="text-xs font-semibold">Policy D: Balanced Green & Equity Mix</span><span class="font-mono text-[10px]">e_A1=0.25</span></div>
+          </button>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+        <div class="flex justify-between border-b border-slate-100 pb-2">
+          <h2 class="text-xs font-bold uppercase text-slate-600">Exogenous Policy Shocks (x)</h2>
+          <span class="text-[11px] font-mono">Total: <strong id="total-shock-display">10.0</strong> Bn</span>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><label>Industry & Energy (x_A1)</label><input id="num-x-A1" type="number" min="0" max="25" step="0.5" value="10" class="w-16 text-right font-mono text-xs border rounded px-1" /></div>
+          <input id="slider-x-A1" type="range" min="0" max="25" step="0.5" value="10" class="w-full" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><label>Services & Tech (x_A2)</label><input id="num-x-A2" type="number" min="0" max="25" step="0.5" value="0" class="w-16 text-right font-mono text-xs border rounded px-1" /></div>
+          <input id="slider-x-A2" type="range" min="0" max="25" step="0.5" value="0" class="w-full" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><label>Low-Income Transfer (x_H1)</label><input id="num-x-H1" type="number" min="0" max="25" step="0.5" value="0" class="w-16 text-right font-mono text-xs border rounded px-1" /></div>
+          <input id="slider-x-H1" type="range" min="0" max="25" step="0.5" value="0" class="w-full" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><label>Financial Credit (x_Fin)</label><input id="num-x-Ffin" type="number" min="0" max="25" step="0.5" value="0" class="w-16 text-right font-mono text-xs border rounded px-1" /></div>
+          <input id="slider-x-Ffin" type="range" min="0" max="25" step="0.5" value="0" class="w-full" />
+        </div>
+      </section>
+
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3">
+        <h2 class="text-xs font-bold uppercase text-slate-600 border-b border-slate-100 pb-2">Biophysical & Structural Parameters</h2>
+        <div>
+          <div class="flex justify-between text-xs"><label>Curative Health Burden (+Phi_SHA)</label><span id="val-health-burden" class="font-mono text-rose-700">+0.15 Bn/Mt</span></div>
+          <input id="slider-health-burden" type="range" min="0" max="0.40" step="0.01" value="0.15" class="w-full damage-slider" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs"><label>Low-Income Morbidity (-Gamma_H1)</label><span id="val-damage-H1" class="font-mono text-rose-700">-0.12 Bn/Mt</span></div>
+          <input id="slider-damage-H1" type="range" min="0" max="0.30" step="0.01" value="0.12" class="w-full damage-slider" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs"><label>High-Income Morbidity (-Gamma_H2)</label><span id="val-damage-H2" class="font-mono text-rose-700">-0.08 Bn/Mt</span></div>
+          <input id="slider-damage-H2" type="range" min="0" max="0.25" step="0.01" value="0.08" class="w-full damage-slider" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs"><label>Low-Income Saving Rate (s_H1)</label><span id="val-s-H1" class="font-mono text-teal-700">10%</span></div>
+          <input id="slider-s-H1" type="range" min="0" max="0.35" step="0.01" value="0.10" class="w-full bio-slider" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs"><label>High-Income Saving Rate (s_H2)</label><span id="val-s-H2" class="font-mono text-teal-700">30%</span></div>
+          <input id="slider-s-H2" type="range" min="0.05" max="0.55" step="0.01" value="0.30" class="w-full bio-slider" />
+        </div>
+        <div>
+          <div class="flex justify-between text-xs"><label>Industry Carbon Intensity (e_A1)</label><span id="val-e-A1" class="font-mono text-amber-700">0.40 Mt/Bn</span></div>
+          <input id="slider-e-A1" type="range" min="0.10" max="0.60" step="0.01" value="0.40" class="w-full bio-slider" />
+        </div>
+      </section>
+    </aside>
+
+    <main class="flex-1 min-w-0 space-y-6">
+      <div id="instability-alert" class="hidden bg-rose-50 border border-rose-300 text-rose-900 px-4 py-3 rounded-xl text-xs font-bold">
+        Warning: Spectral Radius rho(M) >= 1.00. Reduce pollution damage or saving rates for convergence.
+      </div>
+
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+          <p class="text-xs text-slate-500">Total Gross Output (A1 + A2)</p>
+          <p id="kpi-output" class="text-xl font-bold font-mono mt-1">+26.50 Bn CU</p>
+          <p id="kpi-output-delta" class="text-[11px] font-mono text-rose-600 mt-2">-3.00 Bn (-10.2%)</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+          <p class="text-xs text-slate-500">Household Income (H1 + H2)</p>
+          <p id="kpi-income" class="text-xl font-bold font-mono mt-1">+14.70 Bn CU</p>
+          <p id="kpi-income-delta" class="text-[11px] font-mono text-rose-600 mt-2">-2.50 Bn CU</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+          <p class="text-xs text-slate-500">Net Emissions (P_poll)</p>
+          <p id="kpi-emissions" class="text-xl font-bold font-mono mt-1">+11.10 Mt</p>
+          <p id="kpi-emissions-delta" class="text-[11px] font-mono text-slate-600 mt-2">-1.13 Mt</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+          <p class="text-xs text-slate-500">Health Spending (H_care)</p>
+          <p id="kpi-health" class="text-xl font-bold font-mono mt-1">+2.80 Bn CU</p>
+          <p id="kpi-health-delta" class="text-[11px] font-mono text-rose-600 mt-2">+0.60 Bn CU</p>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <h3 class="text-sm font-bold mb-2">Coupled 7x7 vs. Uncoupled 6x6 Impact</h3>
+          <div id="chart-comparison-container" class="w-full min-h-[260px]"></div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <h3 class="text-sm font-bold mb-2">Circular-Flow Multiplier Decomposition (x + Mx + M^2x)</h3>
+          <div id="chart-decomposition-container" class="w-full min-h-[260px]"></div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-xl border border-slate-200 p-5">
+        <div class="flex justify-between items-center mb-3">
+          <h3 id="matrix-title" class="text-sm font-bold">Live 7x7 Unified Multiplier Matrix: (I - M)^-1</h3>
+          <div class="inline-flex rounded-lg bg-slate-100 p-1">
+            <button id="tab-multiplier" type="button" class="px-3 py-1 rounded text-xs font-semibold bg-white text-indigo-700 shadow-sm">Multiplier (I-M)^-1</button>
+            <button id="tab-coefficient" type="button" class="px-3 py-1 rounded text-xs font-medium text-slate-600">Coefficients (M)</button>
+          </div>
+        </div>
+        <div id="inspector-text" class="mb-3 px-3 py-2 rounded bg-slate-50 border text-xs text-slate-600">Hover any cell to inspect multiplier impact.</div>
+        <div class="overflow-x-auto border rounded-lg">
+          <table class="w-full text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 border-b">
+                <th class="py-2 px-3 text-left">Row \ Col</th>
+                <th class="py-2 px-2">A1</th><th class="py-2 px-2">A2</th><th class="py-2 px-2">H1</th>
+                <th class="py-2 px-2">H2</th><th class="py-2 px-2">H_care</th><th class="py-2 px-2">F_fin</th><th class="py-2 px-2 text-rose-800">P_poll</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-tbody" class="divide-y font-mono tabular-nums"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const ACCOUNTS = ['A1 (Ind)', 'A2 (Serv)', 'H1 (Low)', 'H2 (High)', 'H_care', 'F_fin', 'P_poll'];
+    const state = { x_A1: 10, x_A2: 0, x_H1: 0, x_Ffin: 0, health_burden: 0.15, damage_H1: 0.12, damage_H2: 0.08, s_H1: 0.10, s_H2: 0.30, e_A1: 0.40, matrixView: 'multiplier' };
+
+    function buildCoefficientMatrix(p, uncoupled = false) {
+      const h1S = (1.0 - p.s_H1) / 0.90;
+      const h2S = Math.max(0, (0.95 - p.s_H2) / 0.65);
+      return [
+        [0.20, 0.10, 0.30 * h1S, 0.15 * h2S, 0.15, 0.55, 0.00],
+        [0.10, 0.20, 0.50 * h1S, 0.35 * h2S, 0.25, 0.25, 0.00],
+        [0.20, 0.30, 0.00,       0.05,       0.20, 0.00, uncoupled ? 0 : -p.damage_H1],
+        [0.30, 0.25, 0.00,       0.00,       0.30, 0.00, uncoupled ? 0 : -p.damage_H2],
+        [0.00, 0.00, 0.10 * h1S, 0.15 * h2S, 0.00, 0.00, uncoupled ? 0 : p.health_burden],
+        [0.00, 0.00, p.s_H1,     p.s_H2,     0.00, 0.00, 0.00],
+        [p.e_A1, 0.10, 0.15,     0.20,       0.05, 0.00, 0.00]
+      ];
+    }
+
+    function invertMatrix(A) {
+      const n = A.length;
+      const aug = Array.from({ length: n }, (_, i) => {
+        const r = new Float64Array(2 * n);
+        for (let j = 0; j < n; j++) r[j] = A[i][j];
+        r[n + i] = 1.0;
+        return r;
+      });
+      for (let col = 0; col < n; col++) {
+        let maxR = col, maxV = Math.abs(aug[col][col]);
+        for (let r = col + 1; r < n; r++) if (Math.abs(aug[r][col]) > maxV) { maxV = Math.abs(aug[r][col]); maxR = r; }
+        if (maxV < 1e-12) return null;
+        if (maxR !== col) [aug[col], aug[maxR]] = [aug[maxR], aug[col]];
+        const piv = aug[col][col];
+        for (let j = col; j < 2 * n; j++) aug[col][j] /= piv;
+        for (let r = 0; r < n; r++) if (r !== col && aug[r][col] !== 0) {
+          const f = aug[r][col];
+          for (let j = col; j < 2 * n; j++) aug[r][j] -= f * aug[col][j];
+        }
+      }
+      return aug.map(r => Array.from(r.slice(n, 2 * n)));
+    }
+
+    function computeMultiplierMatrix(M) {
+      const n = M.length;
+      return invertMatrix(Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0) - M[i][j])));
+    }
+
+    function matVecMul(A, x) { return A.map(r => r.reduce((s, v, j) => s + v * x[j], 0)); }
+
+    function estimateSpectralRadius(M) {
+      const n = M.length;
+      let v = Array(n).fill(1 / Math.sqrt(n)), lam = 0;
+      for (let it = 0; it < 60; it++) {
+        const nv = Array(n).fill(0);
+        for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) nv[i] += Math.abs(M[i][j]) * v[j];
+        const norm = Math.hypot(...nv);
+        if (norm === 0) return 0;
+        lam = norm;
+        v = nv.map(val => val / norm);
+      }
+      return lam;
+    }
+
+    function renderBars(elId, seriesA, seriesB) {
+      const maxV = Math.max(1, ...seriesA.map(Math.abs), ...seriesB.map(Math.abs)) * 1.15;
+      let svg = `<svg viewBox="0 0 480 245" class="w-full h-full">`;
+      ACCOUNTS.forEach((lbl, i) => {
+        const y = 12 + i * 32;
+        const wA = (Math.max(0, seriesA[i]) / maxV) * 320;
+        const wB = (Math.max(0, seriesB[i]) / maxV) * 320;
+        svg += `<text x="72" y="${y + 12}" text-anchor="end" font-size="10" fill="#334155">${lbl}</text>`;
+        svg += `<rect x="80" y="${y + 2}" width="${wA}" height="9" fill="#4f46e5" rx="2"/>`;
+        svg += `<rect x="80" y="${y + 12}" width="${wB}" height="7" fill="#cbd5e1" rx="2"/>`;
+        svg += `<text x="${85 + Math.max(wA, wB)}" y="${y + 12}" font-size="10" font-family="monospace">${seriesA[i].toFixed(2)}</text>`;
+      });
+      document.getElementById(elId).innerHTML = svg + `</svg>`;
+    }
+
+    function updateDashboard() {
+      const Mc = buildCoefficientMatrix(state, false);
+      const Mu = buildCoefficientMatrix(state, true);
+      const rho = estimateSpectralRadius(Mc);
+      document.getElementById('spectral-radius-val').textContent = rho.toFixed(3);
+      document.getElementById('instability-alert').classList.toggle('hidden', rho < 0.999);
+
+      const invC = computeMultiplierMatrix(Mc);
+      const invU = computeMultiplierMatrix(Mu);
+      if (!invC || !invU) return;
+
+      const x = [state.x_A1, state.x_A2, state.x_H1, 0, 0, state.x_Ffin, 0];
+      document.getElementById('total-shock-display').textContent = x.reduce((a, b) => a + b, 0).toFixed(1);
+      const yc = matVecMul(invC, x), yu = matVecMul(invU, x);
+
+      document.getElementById('kpi-output').textContent = `${(yc[0] + yc[1]).toFixed(2)} Bn CU`;
+      document.getElementById('kpi-output-delta').textContent = `${((yc[0] + yc[1]) - (yu[0] + yu[1])).toFixed(2)} Bn vs 6x6`;
+      document.getElementById('kpi-income').textContent = `${(yc[2] + yc[3]).toFixed(2)} Bn CU`;
+      document.getElementById('kpi-income-delta').textContent = `${((yc[2] + yc[3]) - (yu[2] + yu[3])).toFixed(2)} Bn vs 6x6`;
+      document.getElementById('kpi-emissions').textContent = `${yc[6].toFixed(2)} Mt`;
+      document.getElementById('kpi-emissions-delta').textContent = `${(yc[6] - yu[6]).toFixed(2)} Mt vs 6x6`;
+      document.getElementById('kpi-health').textContent = `${yc[4].toFixed(2)} Bn CU`;
+      document.getElementById('kpi-health-delta').textContent = `+${(yc[4] - yu[4]).toFixed(2)} Bn surge`;
+
+      renderBars('chart-comparison-container', yc, yu);
+      const r1 = matVecMul(Mc, x);
+      renderBars('chart-decomposition-container', yc, x.map((v, i) => v + r1[i]));
+
+      const mat = state.matrixView === 'multiplier' ? invC : Mc;
+      document.getElementById('matrix-tbody').innerHTML = mat.map((row, i) =>
+        `<tr><td class="py-1.5 px-3 font-sans font-semibold bg-slate-50">${ACCOUNTS[i]}</td>` +
+        row.map((v, j) => `<td class="py-1.5 px-2 text-center ${v < 0 ? 'bg-rose-100 text-rose-900' : (i === j ? 'bg-indigo-50 font-bold' : '')}" onmouseenter="document.getElementById('inspector-text').textContent='${ACCOUNTS[i]} <- ${ACCOUNTS[j]}: ${v.toFixed(4)}'">${v.toFixed(2)}</td>`).join('') +
+        `</tr>`
+      ).join('');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      ['x_A1', 'x_A2', 'x_H1', 'x_Ffin'].forEach(k => {
+        const s = document.getElementById(`slider-${k.replace('_', '-')}`), n = document.getElementById(`num-${k.replace('_', '-')}`);
+        s.addEventListener('input', () => { state[k] = +s.value; n.value = s.value; updateDashboard(); });
+        n.addEventListener('input', () => { state[k] = +n.value; s.value = n.value; updateDashboard(); });
+      });
+      [['slider-health-burden','val-health-burden','health_burden','+',' Bn/Mt'],
+       ['slider-damage-H1','val-damage-H1','damage_H1','-',' Bn/Mt'],
+       ['slider-damage-H2','val-damage-H2','damage_H2','-',' Bn/Mt'],
+       ['slider-e-A1','val-e-A1','e_A1','',' Mt/Bn']].forEach(([sid, vid, key, pre, suf]) => {
+        const s = document.getElementById(sid);
+        s.addEventListener('input', () => { state[key] = +s.value; document.getElementById(vid).textContent = `${pre}${(+s.value).toFixed(2)}${suf}`; updateDashboard(); });
+      });
+      ['s_H1', 's_H2'].forEach(k => {
+        const s = document.getElementById(`slider-${k.replace('_', '-')}`);
+        s.addEventListener('input', () => { state[k] = +s.value; document.getElementById(`val-${k.replace('_', '-')}`).textContent = `${Math.round(s.value * 100)}%`; updateDashboard(); });
+      });
+      document.querySelectorAll('.preset-btn').forEach(b => b.addEventListener('click', () => {
+        Object.assign(state, { x_A1: 0, x_A2: 0, x_H1: 0, x_Ffin: 0, e_A1: 0.40 });
+        if (b.dataset.preset === 'A') state.x_A1 = 10;
+        if (b.dataset.preset === 'B') state.x_H1 = 10;
+        if (b.dataset.preset === 'C') state.x_Ffin = 10;
+        if (b.dataset.preset === 'D') Object.assign(state, { x_A2: 5, x_H1: 3, x_Ffin: 2, e_A1: 0.25 });
+        ['x_A1', 'x_A2', 'x_H1', 'x_Ffin'].forEach(k => { document.getElementById(`slider-${k.replace('_', '-')}`).value = state[k]; document.getElementById(`num-${k.replace('_', '-')}`).value = state[k]; });
+        document.getElementById('slider-e-A1').value = state.e_A1;
+        document.getElementById('val-e-A1').textContent = `${state.e_A1.toFixed(2)} Mt/Bn`;
+        updateDashboard();
+      }));
+      document.getElementById('btn-reset').addEventListener('click', () => document.querySelector('[data-preset="A"]').click());
+      document.getElementById('tab-multiplier').addEventListener('click', () => { state.matrixView = 'multiplier'; updateDashboard(); });
+      document.getElementById('tab-coefficient').addEventListener('click', () => { state.matrixView = 'coefficient'; updateDashboard(); });
+      updateDashboard();
+    });
+  </script>
+</body>
+</html>
+\end{lstlisting}
