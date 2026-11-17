@@ -1,80 +1,1319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini-Novaterra 7x7 Coupled Unified Multiplier Explorer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    input[type=range]{appearance:none;height:6px;border-radius:9999px;background:#e2e8f0;outline:none}
-    input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:#4f46e5;cursor:pointer;border:2px solid white;box-shadow:0 1px 3px #0f172a4d}
-    input[type=range].bio-slider::-webkit-slider-thumb{background:#0d9488}
-    input[type=range].damage-slider::-webkit-slider-thumb{background:#e11d48}
-    .tabular-nums{font-variant-numeric:tabular-nums}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="A self-contained explorer for the coupled seven-account multiplier of the unified SNA-FoF-SEEA-SHA-distributional accounting framework." />
+<title>The Explorer &mdash; Coupled Multiplier of the Example Economy</title>
+<style>
+  :root{
+    --ink:#0f172a; --ink2:#334155; --muted:#64748b; --faint:#94a3b8;
+    --line:#dde5ee; --line2:#eef2f7; --bg:#f4f6fa; --card:#ffffff;
+    --accent:#4338ca; --accent-soft:#eef2ff; --accent-line:#c7d2fe;
+    --teal:#0f766e; --teal-soft:#ecfdf5;
+    --rose:#be123c; --rose-soft:#fff1f2;
+    --amber:#b45309; --amber-soft:#fffbeb;
+    --shadow:0 1px 2px rgba(15,23,42,.05), 0 8px 24px -16px rgba(15,23,42,.25);
+    --radius:14px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  h1,h2,h3,h4{margin:0; line-height:1.25; letter-spacing:-.01em}
+  p{margin:0 0 .8em}
+  a{color:var(--accent)}
+  code,.mono{font-family:var(--mono)}
+  .num{font-variant-numeric:tabular-nums}
+  .wrap{max-width:1460px; margin:0 auto; padding:0 22px}
+
+  /* ---------------------------------------------------------------- header */
+  header.top{
+    position:sticky; top:0; z-index:40; color:#f8fafc;
+    background:linear-gradient(135deg,#111827 0%,#1e293b 55%,#312e81 100%);
+    border-bottom:1px solid rgba(148,163,184,.25);
+  }
+  header.top .wrap{display:flex; align-items:center; justify-content:space-between; gap:18px; padding:14px 22px}
+  .brand{display:flex; align-items:center; gap:14px; min-width:0}
+  .mark{
+    width:44px;height:44px;flex:0 0 44px;border-radius:12px;display:grid;place-items:center;
+    background:rgba(129,140,248,.16); border:1px solid rgba(165,180,252,.4);
+    color:#c7d2fe; font:700 13px/1 var(--mono); letter-spacing:.02em;
+  }
+  .brand h1{font-size:17px; font-weight:700}
+  .brand p{margin:2px 0 0; font-size:12px; color:#94a3b8}
+  .badge{
+    display:flex; align-items:center; gap:9px; padding:7px 12px; border-radius:10px;
+    font-size:12px; font-weight:600; white-space:nowrap;
+    background:rgba(16,185,129,.12); border:1px solid rgba(52,211,153,.35); color:#a7f3d0;
+  }
+  .badge.warn{background:rgba(244,63,94,.15); border-color:rgba(251,113,133,.45); color:#fecdd3}
+  .dot{width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.18)}
+  .badge.warn .dot{background:#fb7185;box-shadow:0 0 0 3px rgba(251,113,133,.18)}
+  .badge .val{font-family:var(--mono); color:#fff; font-weight:700}
+  .badge .state{font-size:10px; text-transform:uppercase; letter-spacing:.06em; padding:2px 6px; border-radius:6px; background:rgba(255,255,255,.12)}
+
+  /* ------------------------------------------------------------------ main */
+  main{padding:26px 0 60px}
+  .layout{display:grid; grid-template-columns:372px minmax(0,1fr); gap:22px; align-items:start}
+  @media (max-width:1080px){ .layout{grid-template-columns:minmax(0,1fr)} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+  .card .hd{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line2)}
+  .card .hd h2, .card .hd h3{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink2); font-weight:700}
+  .card .bd{padding:16px}
+  .stack{display:flex; flex-direction:column; gap:18px}
+
+  /* ----------------------------------------------------------- introduction */
+  .intro{margin-bottom:22px}
+  .intro .lead{font-size:16px; color:var(--ink2)}
+  .intro .lead strong{color:var(--ink)}
+  details.doc{border-top:1px solid var(--line2)}
+  details.doc:first-of-type{border-top:0}
+  details.doc > summary{
+    cursor:pointer; padding:13px 16px; font-size:12.5px; font-weight:700; color:var(--ink2);
+    text-transform:uppercase; letter-spacing:.06em; list-style:none; display:flex; align-items:center; gap:10px;
+  }
+  details.doc > summary::-webkit-details-marker{display:none}
+  details.doc > summary::before{
+    content:"+"; width:18px;height:18px;flex:0 0 18px; border-radius:5px; display:grid;place-items:center;
+    background:var(--accent-soft); color:var(--accent); font:700 13px/1 var(--mono);
+  }
+  details.doc[open] > summary::before{content:"\2212"}
+  details.doc > summary:hover{color:var(--accent)}
+  .docbody{padding:0 18px 18px; color:var(--ink2); font-size:14px}
+  .docbody h4{font-size:13px; margin:16px 0 6px; color:var(--ink)}
+  .docbody ul,.docbody ol{margin:.2em 0 .9em; padding-left:1.25em}
+  .docbody li{margin:.22em 0}
+  .strip{display:flex; flex-direction:column; gap:8px; padding:14px 0 18px; border-top:1px solid var(--line2); margin-top:4px}
+  .stripRow{display:flex; flex-wrap:wrap; align-items:center; gap:7px; font-size:12px}
+  .stripLab{font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--faint); font-weight:700; min-width:74px}
+  .chip{background:#f8fafc; border:1px solid var(--line); border-radius:999px; padding:3px 10px; color:var(--ink2)}
+  .chip b{color:var(--ink); font-family:var(--mono); font-size:11.5px; margin-right:3px}
+  .chip.red{background:var(--rose-soft); border-color:#fecdd3}
+  .chip.red b{color:var(--rose)}
+  .link{color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent-line); padding-bottom:1px}
+  .link:hover{border-bottom-color:var(--accent)}
+  .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+
+  /* ---------------------------------------------------------------- tables */
+  table{width:100%; border-collapse:collapse; font-size:13px}
+  thead th{
+    text-align:right; font-weight:600; color:var(--muted); font-size:11.5px;
+    text-transform:uppercase; letter-spacing:.04em; padding:8px 9px; border-bottom:1px solid var(--line);
+    background:#fbfcfe; white-space:nowrap;
+  }
+  thead th:first-child{text-align:left}
+  tbody td{padding:7px 9px; border-bottom:1px solid var(--line2); text-align:right; font-variant-numeric:tabular-nums}
+  tbody td:first-child{text-align:left; font-variant-numeric:normal}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover td{background:#fafbff}
+  tr.total td{font-weight:700; border-top:1px solid var(--line); background:#fbfcfe}
+  tr.sub td{color:var(--muted); font-size:12.5px}
+  td.neg{color:var(--rose); background:var(--rose-soft)}
+  td.pos{color:var(--teal)}
+  .tag{display:inline-block; padding:1px 7px; border-radius:999px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase}
+  .tag.a{background:var(--accent-soft); color:var(--accent)}
+  .tag.t{background:var(--teal-soft); color:var(--teal)}
+  .tag.r{background:var(--rose-soft); color:var(--rose)}
+  .tag.g{background:#f1f5f9; color:var(--muted)}
+  .tblwrap{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  caption{caption-side:top; text-align:left; font-size:11.5px; color:var(--muted); padding:0 0 7px}
+
+  /* --------------------------------------------------------------- controls */
+  .ctl{display:flex; flex-direction:column; gap:16px}
+  .ctl .row{display:flex; flex-direction:column; gap:5px}
+  .ctl .lab{display:flex; align-items:baseline; justify-content:space-between; gap:8px; font-size:12.5px}
+  .ctl .lab span:first-child{color:var(--ink2); font-weight:500}
+  .ctl .lab .v{font-family:var(--mono); font-size:12px; color:var(--accent); font-weight:600}
+  .ctl input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:5px; border-radius:999px;
+    background:linear-gradient(90deg,var(--accent-line),#e2e8f0); outline:none; margin:4px 0 0;
+  }
+  .ctl input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:16px;height:16px;border-radius:50%;
+    background:var(--accent); border:2px solid #fff; cursor:pointer;
+    box-shadow:0 1px 4px rgba(15,23,42,.35);
+  }
+  .ctl input[type=range]::-moz-range-thumb{
+    width:14px;height:14px;border-radius:50%;background:var(--accent);
+    border:2px solid #fff; cursor:pointer; box-shadow:0 1px 4px rgba(15,23,42,.35);
+  }
+  .ctl input[type=range].t::-webkit-slider-thumb{background:var(--teal)}
+  .ctl input[type=range].t::-moz-range-thumb{background:var(--teal)}
+  .ctl input[type=range].r::-webkit-slider-thumb{background:var(--rose)}
+  .ctl input[type=range].r::-moz-range-thumb{background:var(--rose)}
+  .ctl input[type=range].a::-webkit-slider-thumb{background:var(--amber)}
+  .ctl input[type=range].a::-moz-range-thumb{background:var(--amber)}
+  .hint{font-size:11.5px; color:var(--faint); line-height:1.45}
+
+  .presets{display:flex; flex-direction:column; gap:8px}
+  .preset{
+    display:flex; align-items:flex-start; gap:10px; width:100%; text-align:left; cursor:pointer;
+    padding:9px 11px; border-radius:10px; border:1px solid var(--line); background:#fff;
+    font:inherit; color:var(--ink); transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  .preset:hover{border-color:var(--accent-line); background:#fcfcff}
+  .preset[aria-pressed=true]{border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 1px var(--accent) inset}
+  .preset .key{
+    width:22px;height:22px;flex:0 0 22px;border-radius:6px;display:grid;place-items:center;
+    background:#eef2f7; color:var(--ink2); font:700 11px/1 var(--mono);
+  }
+  .preset[aria-pressed=true] .key{background:var(--accent); color:#fff}
+  .preset .t{font-size:12.5px; font-weight:600; line-height:1.35}
+  .preset .s{font-size:11px; color:var(--muted); font-family:var(--mono)}
+
+  button.ghost{
+    border:1px solid var(--line); background:#fff; color:var(--ink2); font:600 12px/1 inherit;
+    padding:8px 12px; border-radius:9px; cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--accent-line); color:var(--accent)}
+
+  /* ------------------------------------------------------------------- kpis */
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px}
+  .kpi{padding:15px 16px}
+  .kpi .k{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:600}
+  .kpi .v{font-size:23px; font-weight:700; letter-spacing:-.02em; margin-top:4px; font-variant-numeric:tabular-nums}
+  .kpi .d{font-size:11.5px; margin-top:5px; font-family:var(--mono)}
+  .kpi .d.good{color:var(--teal)} .kpi .d.bad{color:var(--rose)} .kpi .d.flat{color:var(--muted)}
+  .kpi .note{font-size:11px; color:var(--faint); margin-top:6px; font-family:var(--mono)}
+
+  /* ------------------------------------------------------------------ svg */
+  .chart{width:100%; display:block}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:8px; font-size:11.5px; color:var(--muted)}
+  .legend i{display:inline-block; width:10px;height:10px;border-radius:3px; margin-right:5px; vertical-align:-1px}
+
+  /* --------------------------------------------------------------- matrix */
+  .tabs{display:inline-flex; background:#f1f5f9; border-radius:9px; padding:3px; gap:2px}
+  .tabs button{
+    border:0; background:transparent; font:600 11.5px/1 inherit; color:var(--muted);
+    padding:7px 10px; border-radius:7px; cursor:pointer;
+  }
+  .tabs button[aria-selected=true]{background:#fff; color:var(--accent); box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  table.matrix{font-family:var(--mono); font-size:11.5px; min-width:660px; table-layout:auto}
+  table.matrix th, table.matrix td{white-space:nowrap}
+  table.matrix thead th{text-align:center; padding:7px 10px; font-size:10.5px}
+  table.matrix thead th:first-child{text-align:left; min-width:124px}
+  table.matrix tbody td{text-align:center; padding:6px 10px; border-bottom:1px solid var(--line2)}
+  table.matrix tbody td:first-child{text-align:left; font-family:inherit; font-weight:600; font-size:11px; color:var(--ink2); white-space:nowrap}
+  table.matrix td.neg{background:var(--rose-soft); color:var(--rose); font-weight:700}
+  table.matrix td.diag{background:var(--accent-soft); color:var(--accent); font-weight:700}
+  table.matrix tbody tr:hover td{background:#f8fafc}
+  table.matrix tbody tr:hover td.diag{background:var(--accent-soft)}
+  table.matrix tfoot td{padding:7px 10px; text-align:center; border-top:1px solid var(--line); font-size:10.5px; color:var(--muted)}
+  table.matrix tfoot td:first-child{text-align:left; font-family:inherit}
+  .inspector{
+    font-family:var(--mono); font-size:11.5px; color:var(--ink2); background:#f8fafc;
+    border:1px solid var(--line2); border-radius:9px; padding:8px 11px; margin-bottom:10px; min-height:34px;
+  }
+
+  table.diagtable{width:100%; font-size:12px}
+  table.diagtable td{padding:5px 0; border-bottom:1px solid var(--line2); text-align:right; font-variant-numeric:tabular-nums}
+  table.diagtable td:first-child{text-align:left; color:var(--ink2)}
+  table.diagtable tr:last-child td{border-bottom:0}
+  .callout{
+    border-left:3px solid var(--accent); background:var(--accent-soft); color:#312e81;
+    padding:11px 14px; border-radius:0 9px 9px 0; font-size:13px;
+  }
+  .callout.warn{border-left-color:var(--rose); background:var(--rose-soft); color:#881337}
+  .callout.t{border-left-color:var(--teal); background:var(--teal-soft); color:#134e4a}
+
+  .eq{
+    font-family:"Latin Modern Math",Cambria,"Times New Roman",serif; font-size:16px;
+    text-align:center; padding:10px 6px; background:#fbfcfe; border:1px solid var(--line2); border-radius:9px; color:var(--ink);
+  }
+  .eq .lbl{float:right; font-size:11px; color:var(--faint); font-family:var(--mono)}
+
+  footer{border-top:1px solid var(--line); padding:22px 0 40px; color:var(--muted); font-size:12px}
+
+  @media print{
+    header.top{position:static}
+    .controls,.tabs,button{display:none !important}
+    body{background:#fff}
+    .card{box-shadow:none; break-inside:avoid}
+    .layout{grid-template-columns:1fr}
+  }
+</style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
-<header class="bg-slate-900 text-white sticky top-0 z-30 shadow-sm">
-  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-    <div><h1 class="text-lg font-bold">Mini-Novaterra Unified Multiplier Explorer</h1><p class="text-xs text-slate-400">Endogenous Leontief-SAM-Biophysical Matrix Solver: <span class="font-mono text-slate-200">y = (I - M)⁻¹x</span></p></div>
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs"><span>Spectral Radius ρ(M):</span><strong id="spectral-radius-val" class="font-mono text-white">—</strong><span id="stability-label" class="px-1.5 py-0.5 rounded bg-emerald-500/20">Stable</span></div>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark">7&times;7</div>
+      <div>
+        <h1>The Explorer &mdash; Coupled Multiplier of the Example Economy</h1>
+        <p>A unified SNA &middot; flow-of-funds &middot; SEEA &middot; health &middot; distributional accounting experiment</p>
+      </div>
+    </div>
+    <div id="badge" class="badge" title="Largest eigenvalue modulus of the coefficient matrix">
+      <span class="dot"></span>
+      <span>&rho;(M) 7&times;7 =</span>
+      <span class="val" id="rhoVal">&mdash;</span>
+      <span class="state" id="rhoState">&mdash;</span>
+    </div>
   </div>
 </header>
-<div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 flex flex-col lg:flex-row gap-6">
-<aside class="w-full lg:w-[380px] shrink-0 space-y-5">
-  <section class="bg-white rounded-xl border p-4"><div class="flex justify-between mb-3"><h2 class="text-xs font-bold uppercase text-slate-500">Preset Policy Scenarios</h2><button id="btn-reset" type="button" class="text-xs underline">Reset All</button></div><div class="grid gap-2">
-    <button type="button" data-preset="A" class="preset-btn text-left px-3 py-2 rounded border bg-indigo-50"><b>Policy A: +10 Bn Industrial Stimulus</b> <span class="text-xs">x_A1=10</span></button>
-    <button type="button" data-preset="B" class="preset-btn text-left px-3 py-2 rounded border"><b>Policy B: +10 Bn Low-Income Transfer</b> <span class="text-xs">x_H1=10</span></button>
-    <button type="button" data-preset="C" class="preset-btn text-left px-3 py-2 rounded border"><b>Policy C: +10 Bn Credit Facility</b> <span class="text-xs">x_Fin=10</span></button>
-    <button type="button" data-preset="D" class="preset-btn text-left px-3 py-2 rounded border"><b>Policy D: Balanced Green &amp; Equity Mix</b> <span class="text-xs">e_A1=0.25</span></button>
-  </div></section>
-  <section class="bg-white rounded-xl border p-4 space-y-3"><div class="flex justify-between border-b pb-2"><h2 class="text-xs font-bold uppercase">Exogenous Policy Shocks (x)</h2><span class="text-xs">Total: <b id="total-shock-display">10.0</b> Bn</span></div>
-    <div><label class="text-xs">Industry &amp; Energy (x_A1) <input id="num-x-A1" type="number" min="0" max="25" step="0.5" value="10" class="w-16 border rounded px-1"></label><input id="slider-x-A1" type="range" min="0" max="25" step="0.5" value="10" class="w-full"></div>
-    <div><label class="text-xs">Services &amp; Tech (x_A2) <input id="num-x-A2" type="number" min="0" max="25" step="0.5" value="0" class="w-16 border rounded px-1"></label><input id="slider-x-A2" type="range" min="0" max="25" step="0.5" value="0" class="w-full"></div>
-    <div><label class="text-xs">Low-Income Transfer (x_H1) <input id="num-x-H1" type="number" min="0" max="25" step="0.5" value="0" class="w-16 border rounded px-1"></label><input id="slider-x-H1" type="range" min="0" max="25" step="0.5" value="0" class="w-full"></div>
-    <div><label class="text-xs">Financial Credit (x_Ffin) <input id="num-x-Ffin" type="number" min="0" max="25" step="0.5" value="0" class="w-16 border rounded px-1"></label><input id="slider-x-Ffin" type="range" min="0" max="25" step="0.5" value="0" class="w-full"></div>
+
+<main>
+<div class="wrap">
+
+  <!-- ============================ INTRODUCTION ============================ -->
+  <section class="card intro">
+    <div class="card bd" style="padding:20px 22px 6px">
+      <p class="lead" style="margin-bottom:10px">
+        <strong>What this page does.</strong> It solves one accounting model exactly, in your browser, and lets you
+        change it. The model is a square system of seven accounts &mdash; production, two household groups, health care,
+        financial intermediation and pollution &mdash; that are read as a single matrix. A policy shock is injected into
+        some accounts and propagated through all of them by the inverse of <span class="mono">(I &minus; M)</span>.
+      </p>
+      <p class="lead" style="margin-bottom:14px">
+        <strong>The question.</strong> Does endogenising more of the accounting system change the answer to a policy
+        question? The same shock is solved under three closures &mdash; an open <span class="mono">5&times;5</span> monetary
+        core, a financially closed <span class="mono">6&times;6</span> core, and a fully coupled <span class="mono">7&times;7</span>
+        system &mdash; and the results are shown side by side. Everything needed to read the experiment is on this page;
+        the article is not required.
+      </p>
+      <div class="strip">
+        <div class="stripRow">
+          <span class="stripLab">Accounts</span>
+          <span class="chip"><b>A1</b> industry &amp; energy</span>
+          <span class="chip"><b>A2</b> services</span>
+          <span class="chip"><b>H1</b> low income</span>
+          <span class="chip"><b>H2</b> high income</span>
+          <span class="chip"><b>Hc</b> health care</span>
+          <span class="chip"><b>Ff</b> finance</span>
+          <span class="chip red"><b>Pp</b> pollution (Mt)</span>
+        </div>
+        <div class="stripRow">
+          <span class="stripLab">Closures</span>
+          <span class="chip"><b>5&times;5</b> open &mdash; saving leaks, pollution passive</span>
+          <span class="chip"><b>6&times;6</b> + finance &mdash; saving becomes credit</span>
+          <span class="chip"><b>7&times;7</b> + pollution &mdash; full feedback</span>
+        </div>
+        <div class="stripRow">
+          <span class="stripLab">Sections</span>
+          <a class="link" href="#doc-economy">economy</a>
+          <a class="link" href="#doc-model">model</a>
+          <a class="link" href="#doc-params">parameters</a>
+          <a class="link" href="#doc-scen">scenarios</a>
+          <a class="link" href="#doc-read">how to read</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- the economy -->
+    <details class="doc" id="doc-economy">
+      <summary>The example economy: seven accounts, five account families</summary>
+      <div class="docbody">
+        <p>
+          The economy is deliberately small and round-numbered so that every number can be recomputed by hand. It is an
+          illustrative benchmark, not an estimate for any country. Monetary accounts are in <strong>billions of currency
+          units (Bn CU)</strong>; the pollution account is in <strong>megatonnes of CO<sub>2</sub> equivalent
+          (Mt CO<sub>2</sub>e)</strong>.
+        </p>
+        <div class="tblwrap">
+          <table>
+            <caption>The seven accounts. A row records receipts; the corresponding column records outlays.</caption>
+            <thead><tr>
+              <th>Account</th><th>Code</th><th>Unit</th><th style="text-align:left">What the row records</th><th style="text-align:left">What the column records</th>
+            </tr></thead>
+            <tbody>
+              <tr><td>Industry and energy</td><td class="mono">A1</td><td>Bn CU</td>
+                  <td style="text-align:left">Receipts from sales of industrial and energy output</td>
+                  <td style="text-align:left">Intermediate inputs, wages, profits, taxes, imports</td></tr>
+              <tr><td>Services and technology</td><td class="mono">A2</td><td>Bn CU</td>
+                  <td style="text-align:left">Receipts from sales of services</td>
+                  <td style="text-align:left">Intermediate inputs, wages, profits, taxes, imports</td></tr>
+              <tr><td>Low-income households (quintiles 1&ndash;2)</td><td class="mono">H1</td><td>Bn CU</td>
+                  <td style="text-align:left">Wages, transfers received, capital income</td>
+                  <td style="text-align:left">Consumption of A1, A2 and health care; saving</td></tr>
+              <tr><td>High-income households (quintiles 3&ndash;5)</td><td class="mono">H2</td><td>Bn CU</td>
+                  <td style="text-align:left">Wages, transfers received, capital income</td>
+                  <td style="text-align:left">Consumption of A1, A2 and health care; transfers to H1; saving</td></tr>
+              <tr><td>Health care</td><td class="mono">Hc</td><td>Bn CU</td>
+                  <td style="text-align:left">Out-of-pocket payments, insurance, public financing</td>
+                  <td style="text-align:left">Pharmaceuticals and equipment from A1, services from A2, health-sector wages and profits</td></tr>
+              <tr><td>Financial intermediation</td><td class="mono">Ff</td><td>Bn CU</td>
+                  <td style="text-align:left">Household saving and policy injections</td>
+                  <td style="text-align:left">Credit to industry and services; 20 per cent leaks abroad</td></tr>
+              <tr><td>Pollution</td><td class="mono">Pp</td><td>Mt CO<sub>2</sub>e</td>
+                  <td style="text-align:left">Emissions generated by the outlays of each account</td>
+                  <td style="text-align:left">Marginal economic response to one more Mt: lost earnings, defensive health spending</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint" style="margin-top:10px">
+          The seven accounts map onto the five account families of the framework: <em>SNA</em> (A1, A2), <em>distributional
+          SAM</em> (H1, H2), <em>health</em> (Hc), <em>flow of funds</em> (Ff) and <em>environmental satellite</em> (Pp).
+          The full benchmark of the framework &mdash; GDP reconciliation, flow-of-funds matrix, SEEA flows, health
+          accounts and quintile distribution &mdash; reconciles at 1,000.0 Bn CU of GDP; this seven-account reduction is
+          its structural core.
+        </p>
+      </div>
+    </details>
+
+    <!-- ---- the model -->
+    <details class="doc" id="doc-model">
+      <summary>The model: one matrix, three closures, one inverse</summary>
+      <div class="docbody">
+        <p>
+          Let <span class="mono">m<sub>ij</sub></span> be the payment that account <em>j</em> makes to account <em>i</em>
+          per unit of <em>j</em>'s total outlays. Column <em>j</em> of the coefficient matrix <span class="mono">M</span> is
+          therefore the expenditure pattern of account <em>j</em>, and the accounting system reads
+        </p>
+        <div class="eq" style="margin:8px 0 12px">y = M y + x &nbsp;&nbsp;&#10233;&nbsp;&nbsp; y = (I &minus; M)<sup>&minus;1</sup> x</div>
+        <p>
+          where <span class="mono">y</span> is the vector of account totals and <span class="mono">x</span> the vector of
+          exogenous injections. Entry <span class="mono">(i, j)</span> of the inverse is the total effect on account
+          <em>i</em> of a one-unit injection into account <em>j</em>, after all rounds of the circular flow. Because
+        </p>
+        <div class="eq" style="margin:8px 0 12px">(I &minus; M)<sup>&minus;1</sup> = I + M + M<sup>2</sup> + M<sup>3</sup> + &hellip;</div>
+        <p>
+          the multiplier can be read round by round, and the series converges if and only if the spectral radius
+          satisfies the Hawkins&ndash;Simon condition <span class="mono">&rho;(M) &lt; 1</span>. The badge in the header
+          reports <span class="mono">&rho;(M)</span> computed from the characteristic polynomial, not estimated.
+        </p>
+        <div class="tblwrap" style="margin-top:6px">
+          <table>
+            <caption>The three closures. Each adds accounts to the endogenous block of the inverse.</caption>
+            <thead><tr><th>Closure</th><th>Accounts</th><th style="text-align:left">What is endogenous</th><th style="text-align:left">What leaks</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag g">open</span></td><td class="mono">5&times;5</td>
+                  <td style="text-align:left">A1, A2, H1, H2, Hc. Conventional Leontief&ndash;SAM core.</td>
+                  <td style="text-align:left">Household saving (10% and 30%) and imports; pollution is a passive row outside the inverse.</td></tr>
+              <tr><td><span class="tag t">financially closed</span></td><td class="mono">6&times;6</td>
+                  <td style="text-align:left">The five above plus Ff: saving is intermediated into capital formation.</td>
+                  <td style="text-align:left">20% of intermediated funds goes abroad; pollution still passive.</td></tr>
+              <tr><td><span class="tag a">coupled</span></td><td class="mono">7&times;7</td>
+                  <td style="text-align:left">All six above plus Pp: pollution responds to activity and feeds back on income, health spending and output.</td>
+                  <td style="text-align:left">Imports and the foreign leakage of funds.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>The coupled column (account Pp)</h4>
+        <p>
+          One additional megatonne of emissions has three effects, expressed in Bn CU per Mt and read down the pollution
+          column: it destroys <span class="mono">&delta;<sub>H1</sub></span> of low-income earnings (occupational and
+          environmental exposure), <span class="mono">&delta;<sub>H2</sub></span> of high-income earnings, and it raises
+          defensive curative health spending by <span class="mono">&phi;</span>. Those are the entries that make the
+          seventh diagonal of the inverse fall below one and the environmental feedback self-damping. The pollution
+          column is a vector of marginal responses, not a vector of expenditure shares, so it does not sum to one.
+        </p>
+        <h4>Household columns under a change of saving rate</h4>
+        <p>
+          A column of <span class="mono">M</span> must keep summing to one when a saving rate changes, or the accounting
+          would no longer balance. The explorer therefore rescales the consumption propensities of each household
+          column by
+        </p>
+        <div class="eq" style="margin:8px 0 12px">
+          &alpha;<sub>H1</sub> = (1 &minus; s<sub>H1</sub>) / 0.90,
+          &nbsp;&nbsp;&nbsp;
+          &alpha;<sub>H2</sub> = max(0, 0.95 &minus; s<sub>H2</sub>) / 0.65
+        </div>
+        <p>
+          so that the low-income column spends <span class="mono">0.90&alpha;<sub>H1</sub></span> on goods and health and
+          saves <span class="mono">s<sub>H1</sub></span>, and the high-income column spends
+          <span class="mono">0.65&alpha;<sub>H2</sub></span>, transfers 0.05 to H1 and saves
+          <span class="mono">s<sub>H2</sub></span>. Both columns then total exactly 1.000 at every admissible saving rate,
+          which the diagnostics panel verifies live.
+        </p>
+      </div>
+    </details>
+
+    <!-- ---- parameters -->
+    <details class="doc" id="doc-params">
+      <summary>Parameters, admissible ranges and baseline values</summary>
+      <div class="docbody">
+        <p>
+          Four parameters are policy injections, added to final demand; six are structural. The baseline column is the
+          calibration used in the article.
+        </p>
+        <div class="tblwrap">
+          <table>
+            <thead><tr><th>Symbol</th><th>Meaning</th><th>Unit</th><th>Range</th><th>Baseline</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">x<sub>A1</sub></td><td style="text-align:left">Injection into industry and energy</td><td>Bn CU</td><td>0 &ndash; 25</td><td>10.0 in Policy A, else 0</td></tr>
+              <tr><td class="mono">x<sub>A2</sub></td><td style="text-align:left">Injection into services and technology</td><td>Bn CU</td><td>0 &ndash; 25</td><td>0 (5.0 in Policy D)</td></tr>
+              <tr><td class="mono">x<sub>H1</sub></td><td style="text-align:left">Transfer to low-income households</td><td>Bn CU</td><td>0 &ndash; 25</td><td>0 (3.0 in Policy D)</td></tr>
+              <tr><td class="mono">x<sub>Ff</sub></td><td style="text-align:left">Injection into financial intermediation</td><td>Bn CU</td><td>0 &ndash; 25</td><td>0 (2.0 in Policy D)</td></tr>
+              <tr><td class="mono">&phi;</td><td style="text-align:left">Curative health spending caused by pollution</td><td>Bn CU per Mt</td><td>0 &ndash; 0.40</td><td>0.15</td></tr>
+              <tr><td class="mono">&delta;<sub>H1</sub></td><td style="text-align:left">Low-income earnings lost per Mt</td><td>Bn CU per Mt</td><td>0 &ndash; 0.30</td><td>0.12</td></tr>
+              <tr><td class="mono">&delta;<sub>H2</sub></td><td style="text-align:left">High-income earnings lost per Mt</td><td>Bn CU per Mt</td><td>0 &ndash; 0.25</td><td>0.08</td></tr>
+              <tr><td class="mono">s<sub>H1</sub></td><td style="text-align:left">Saving rate of low-income households</td><td>share</td><td>0 &ndash; 0.35</td><td>0.10</td></tr>
+              <tr><td class="mono">s<sub>H2</sub></td><td style="text-align:left">Saving rate of high-income households</td><td>share</td><td>0.05 &ndash; 0.55</td><td>0.30</td></tr>
+              <tr><td class="mono">e<sub>A1</sub></td><td style="text-align:left">Emissions intensity of industry</td><td>Mt per Bn CU</td><td>0.10 &ndash; 0.60</td><td>0.40</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint" style="margin-top:10px">
+          The other emission intensities are fixed: services 0.10 Mt per Bn CU, health care 0.05, low-income outlays
+          0.15, high-income outlays 0.20, finance 0.00. Over the whole admissible box of the six structural parameters
+          the spectral radius stays below 1 (its maximum, 0.987, occurs at high emissions intensity, high health burden and
+          zero morbidity drags), so the multiplier is finite for every setting the sliders allow. The header badge turns
+          red if a configuration ever violates the condition.
+        </p>
+      </div>
+    </details>
+
+    <!-- ---- scenarios -->
+    <details class="doc" id="doc-scen">
+      <summary>The four scenarios</summary>
+      <div class="docbody">
+        <p>
+          Each scenario is a 10.0 Bn CU injection, except that Policy D also lowers the emissions intensity of industry
+          to 0.25 Mt per Bn CU. The shock vector is ordered (A1, A2, H1, H2, Hc, Ff, Pp); entries not listed are zero.
+        </p>
+        <div class="tblwrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Shock vector</th><th style="text-align:left">Structural override</th><th style="text-align:left">What it tests</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Policy A</strong><br><span class="hint">industrial stimulus</span></td><td class="mono">[10, 0, 0, 0, 0, 0, 0]</td>
+                  <td style="text-align:left">none (e<sub>A1</sub> = 0.40)</td>
+                  <td style="text-align:left">A carbon-intensive demand injection: how much output, how much pollution, and who bears it.</td></tr>
+              <tr><td><strong>Policy B</strong><br><span class="hint">targeted transfer</span></td><td class="mono">[0, 0, 10, 0, 0, 0, 0]</td>
+                  <td style="text-align:left">none</td>
+                  <td style="text-align:left">The velocity of a transfer to the group with the higher spending rate, and its credit and emission consequences.</td></tr>
+              <tr><td><strong>Policy C</strong><br><span class="hint">credit injection</span></td><td class="mono">[0, 0, 0, 0, 0, 10, 0]</td>
+                  <td style="text-align:left">none</td>
+                  <td style="text-align:left">What a liquidity injection does when finance is an account rather than a leakage. Undefined in the open 5&times;5 model.</td></tr>
+              <tr><td><strong>Policy D</strong><br><span class="hint">green and equity mix</span></td><td class="mono">[0, 5, 3, 0, 0, 2, 0]</td>
+                  <td style="text-align:left">e<sub>A1</sub> = 0.25</td>
+                  <td style="text-align:left">A balanced package &mdash; services, a transfer and green credit &mdash; under a cleaner technology.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint" style="margin-top:10px">
+          A preset sets the four injections and, for Policy D, the emissions intensity. The other five structural
+          parameters are left exactly as you have set them, so a preset reproduces the published columns only at their
+          baseline values.
+        </p>
+      </div>
+    </details>
+
+    <!-- ---- reading -->
+    <details class="doc" id="doc-read">
+      <summary>How to read the output</summary>
+      <div class="docbody">
+        <ul>
+          <li><strong>Headline cards</strong> report the coupled 7&times;7 solution for the current shock and parameters, with the difference from the financially closed 6&times;6 counterfactual.</li>
+          <li><strong>Closure comparison</strong> solves the same shock under all three closures. The last column is the coupled value as a percentage of the 6&times;6 value: it isolates what environmental endogenisation adds.</li>
+          <li><strong>Two charts</strong>: the first compares the three closures account by account; the second splits the coupled response into the direct injection, the first round of re-spending and everything after it.</li>
+          <li><strong>Round-by-round table</strong> shows <span class="mono">M<sup>&kappa;</sup>x</span> for rounds 0 to 6, the geometric tail that remains, and the exact total. It is the numerical content of the power-series representation.</li>
+          <li><strong>Matrix panel</strong> shows the live coefficient matrix <span class="mono">M</span> or the multiplier matrix <span class="mono">(I &minus; M)<sup>&minus;1</sup></span> for any of the three closures. Negative cells are shaded red; diagonal cells blue. Hover or tap a cell to read its row and column.</li>
+          <li><strong>Reference results</strong> are the baseline calibration of the article, recomputed at load: 11 closure&ndash;scenario combinations. They do not move when the sliders move.</li>
+        </ul>
+      </div>
+    </details>
   </section>
-  <section class="bg-white rounded-xl border p-4 space-y-3"><h2 class="text-xs font-bold uppercase border-b pb-2">Biophysical &amp; Structural Parameters</h2>
-    <div><label class="text-xs">Curative Health Burden (+Phi_SHA) <span id="val-health-burden" class="float-right">+0.15 Bn/Mt</span></label><input id="slider-health-burden" type="range" min="0" max="0.40" step="0.01" value="0.15" class="w-full damage-slider"></div>
-    <div><label class="text-xs">Low-Income Morbidity (-Gamma_H1) <span id="val-damage-H1" class="float-right">-0.12 Bn/Mt</span></label><input id="slider-damage-H1" type="range" min="0" max="0.30" step="0.01" value="0.12" class="w-full damage-slider"></div>
-    <div><label class="text-xs">High-Income Morbidity (-Gamma_H2) <span id="val-damage-H2" class="float-right">-0.08 Bn/Mt</span></label><input id="slider-damage-H2" type="range" min="0" max="0.25" step="0.01" value="0.08" class="w-full damage-slider"></div>
-    <div><label class="text-xs">Low-Income Saving Rate (s_H1) <span id="val-s-H1" class="float-right">10%</span></label><input id="slider-s-H1" type="range" min="0" max="0.35" step="0.01" value="0.10" class="w-full bio-slider"></div>
-    <div><label class="text-xs">High-Income Saving Rate (s_H2) <span id="val-s-H2" class="float-right">30%</span></label><input id="slider-s-H2" type="range" min="0.05" max="0.55" step="0.01" value="0.30" class="w-full bio-slider"></div>
-    <div><label class="text-xs">Industry Carbon Intensity (e_A1) <span id="val-e-A1" class="float-right">0.40 Mt/Bn</span></label><input id="slider-e-A1" type="range" min="0.10" max="0.60" step="0.01" value="0.40" class="w-full bio-slider"></div>
-  </section>
-</aside>
-<main class="flex-1 min-w-0 space-y-6">
-  <div id="instability-alert" class="hidden bg-rose-50 border border-rose-300 text-rose-900 p-3 rounded-xl text-xs font-bold">Warning: Spectral radius ρ(M) ≥ 1.00. The multiplier series does not converge.</div>
-  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-    <div class="bg-white rounded-xl border p-4"><p class="text-xs text-slate-500">Total Gross Output (A1 + A2)</p><p id="kpi-output" class="text-xl font-bold font-mono">—</p><p id="kpi-output-delta" class="text-xs mt-2"></p></div>
-    <div class="bg-white rounded-xl border p-4"><p class="text-xs text-slate-500">Household Income (H1 + H2)</p><p id="kpi-income" class="text-xl font-bold font-mono">—</p><p id="kpi-income-delta" class="text-xs mt-2"></p></div>
-    <div class="bg-white rounded-xl border p-4"><p class="text-xs text-slate-500">Net Emissions (P_poll)</p><p id="kpi-emissions" class="text-xl font-bold font-mono">—</p><p id="kpi-emissions-delta" class="text-xs mt-2"></p></div>
-    <div class="bg-white rounded-xl border p-4"><p class="text-xs text-slate-500">Health Spending (H_care)</p><p id="kpi-health" class="text-xl font-bold font-mono">—</p><p id="kpi-health-delta" class="text-xs mt-2"></p></div>
-  </section>
-  <section class="grid grid-cols-1 xl:grid-cols-2 gap-6"><div class="bg-white rounded-xl border p-5"><h3 class="font-bold text-sm mb-2">Coupled 7x7 vs. Uncoupled 6x6 Impact</h3><div id="chart-comparison-container" class="min-h-[245px]"></div></div><div class="bg-white rounded-xl border p-5"><h3 class="font-bold text-sm mb-2">Circular-Flow Multiplier Decomposition (x + Mx + M²x)</h3><div id="chart-decomposition-container" class="min-h-[245px]"></div></div></section>
-  <section class="bg-white rounded-xl border p-5"><div class="flex flex-wrap justify-between gap-2 items-center mb-3"><div><h3 class="font-bold text-sm">Sample Raw Data Matrices</h3><p class="text-xs text-slate-500">The two coefficient matrices used by the comparison: coupled 7×7 and uncoupled 6×6 (pollution feedback removed).</p></div><button id="refresh-raw-matrices" type="button" class="text-xs text-indigo-700 underline">Refresh values</button></div><div class="grid grid-cols-1 xl:grid-cols-2 gap-4"><div class="min-w-0"><h4 class="font-semibold text-xs mb-2">Coupled coefficients (M), 7×7</h4><div id="raw-coupled" class="overflow-x-auto"></div></div><div class="min-w-0"><h4 class="font-semibold text-xs mb-2">Uncoupled coefficients (M), 7×7</h4><div id="raw-uncoupled" class="overflow-x-auto"></div></div></div></section>
-  <section class="bg-white rounded-xl border p-5"><div class="flex flex-wrap justify-between items-center gap-2 mb-3"><h3 id="matrix-title" class="font-bold text-sm">Live Multiplier Matrix: (I - M)⁻¹</h3><div class="inline-flex rounded bg-slate-100 p-1"><button id="tab-multiplier" type="button" class="px-3 py-1 rounded text-xs font-semibold bg-white text-indigo-700">Multiplier (I-M)⁻¹</button><button id="tab-coefficient" type="button" class="px-3 py-1 rounded text-xs">Coefficients (M)</button></div></div><div id="inspector-text" class="mb-3 p-2 rounded bg-slate-50 border text-xs">Hover a cell to inspect its value.</div><div id="live-matrix" class="overflow-x-auto"></div></section>
-</main></div>
+
+  <!-- ============================== LAYOUT ============================== -->
+  <div class="layout">
+
+    <!-- ------------------------------- controls ------------------------- -->
+    <aside class="stack controls">
+      <section class="card">
+        <div class="hd">
+          <h2>Scenarios</h2>
+          <button id="btnReset" class="ghost" type="button">Reset</button>
+        </div>
+        <div class="bd presets" id="presets"></div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Policy injections x</h2>
+          <span class="hint mono" id="xTotal">10.0 Bn</span>
+        </div>
+        <div class="bd ctl" id="shockCtl"></div>
+      </section>
+
+      <section class="card">
+        <div class="hd"><h2>Structural parameters</h2></div>
+        <div class="bd ctl" id="paramCtl"></div>
+      </section>
+
+      <section class="card">
+        <div class="hd"><h2>Diagnostics</h2></div>
+        <div class="bd" style="font-size:12px">
+          <table class="diagtable">
+            <tbody id="diagBody"></tbody>
+          </table>
+          <p class="hint" style="margin-top:10px">
+            The residual is the largest absolute deviation of <span class="mono">(I &minus; M)(I &minus; M)<sup>&minus;1</sup></span>
+            from the identity; it should sit at machine precision (about 1e&minus;15), which is the check that
+            the model is solved exactly and not iterated.
+          </p>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ------------------------------- results -------------------------- -->
+    <div class="stack">
+
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Closure comparison</h2>
+          <span class="hint" id="cmpNote">same shock, three closures</span>
+        </div>
+        <div class="bd">
+          <div class="tblwrap">
+            <table id="cmpTable"></table>
+          </div>
+          <p class="hint" id="cmpFoot" style="margin-top:10px"></p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd"><h2>What each closure adds</h2></div>
+        <div class="bd">
+          <div id="chartClosure"></div>
+          <div class="legend" id="legendClosure"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd"><h2>Anatomy of the coupled response</h2><span class="hint">&kappa; = round of re-spending</span></div>
+        <div class="bd">
+          <div id="chartRounds"></div>
+          <div class="legend" id="legendRounds"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Round by round</h2>
+          <div class="tabs" id="roundTabs">
+            <button type="button" data-c="open" aria-selected="false">5&times;5</button>
+            <button type="button" data-c="finance" aria-selected="false">6&times;6</button>
+            <button type="button" data-c="coupled" aria-selected="true">7&times;7</button>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="tblwrap"><table id="roundTable"></table></div>
+          <p class="hint" style="margin-top:10px" id="roundNote"></p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Matrix</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <div class="tabs" id="mClosureTabs">
+              <button type="button" data-c="open" aria-selected="false">5&times;5</button>
+              <button type="button" data-c="finance" aria-selected="false">6&times;6</button>
+              <button type="button" data-c="coupled" aria-selected="true">7&times;7</button>
+            </div>
+            <div class="tabs" id="mViewTabs">
+              <button type="button" data-v="multiplier" aria-selected="true">(I&minus;M)<sup>&minus;1</sup></button>
+              <button type="button" data-v="coefficient" aria-selected="false">M</button>
+            </div>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="inspector" id="inspector">Hover a cell to read its row, column and value.</div>
+          <div class="tblwrap"><table class="matrix" id="matrixTable"></table></div>
+          <p class="hint" style="margin-top:10px" id="matrixNote"></p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="hd">
+          <h2>Reference results at baseline calibration</h2>
+          <span class="hint">Bn CU, except emissions in Mt CO<sub>2</sub>e</span>
+        </div>
+        <div class="bd">
+          <div class="tblwrap"><table id="refTable"></table></div>
+          <p class="hint" style="margin-top:10px">
+            Every figure is a total effect of the stated injection, obtained as the appropriate column combination of
+            <span class="mono">(I &minus; M)<sup>&minus;1</sup></span>. Emissions for the 5&times;5 and 6&times;6 closures are the
+            passive pollution row applied to the solution; for the 7&times;7 they are the seventh element of the
+            solution itself, which is why the coupled figure can be lower than the financially closed one.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0">
+      <strong>The Explorer</strong> &mdash; coupled multiplier for the example economy of the unified accounting
+      framework. Single file, no network access, no external library. The numerical engine inverts the coefficient
+      matrix by Gauss&ndash;Jordan elimination with partial pivoting, obtains <span class="mono">&rho;(M)</span> from the
+      roots of the characteristic polynomial, and checks the inversion against the identity matrix on every update.
+    </p>
+  </div>
+</footer>
+
 <script>
-const ACCOUNTS=['A1 (Ind)','A2 (Serv)','H1 (Low)','H2 (High)','H_care','F_fin','P_poll'];
-const state={x_A1:10,x_A2:0,x_H1:0,x_Ffin:0,health_burden:.15,damage_H1:.12,damage_H2:.08,s_H1:.10,s_H2:.30,e_A1:.40,matrixView:'multiplier'};
-function buildCoefficientMatrix(p,uncoupled=false){const h1S=(1-p.s_H1)/.90,h2S=Math.max(0,(.95-p.s_H2)/.65);return [[.20,.10,.30*h1S,.15*h2S,.15,.55,0],[.10,.20,.50*h1S,.35*h2S,.25,.25,0],[.20,.30,0,.05,.20,0,uncoupled?0:-p.damage_H1],[.30,.25,0,0,.30,0,uncoupled?0:-p.damage_H2],[0,0,.10*h1S,.15*h2S,0,0,uncoupled?0:p.health_burden],[0,0,p.s_H1,p.s_H2,0,0,0],[p.e_A1,.10,.15,.20,.05,0,0]]}
-function invertMatrix(A){const n=A.length,aug=A.map((row,i)=>[...row,...Array.from({length:n},(_,j)=>i===j?1:0)]);for(let c=0;c<n;c++){let r=c;for(let k=c+1;k<n;k++)if(Math.abs(aug[k][c])>Math.abs(aug[r][c]))r=k;if(Math.abs(aug[r][c])<1e-12)return null;[aug[c],aug[r]]=[aug[r],aug[c]];const p=aug[c][c];for(let j=0;j<2*n;j++)aug[c][j]/=p;for(let i=0;i<n;i++)if(i!==c){const f=aug[i][c];for(let j=0;j<2*n;j++)aug[i][j]-=f*aug[c][j]}}return aug.map(r=>r.slice(n))}
-function multiply(A,x){return A.map(r=>r.reduce((s,v,j)=>s+v*x[j],0))}
-function spectralRadius(M){const n=M.length;let v=Array(n).fill(1/Math.sqrt(n)),lam=0;for(let t=0;t<100;t++){const w=M.map(r=>r.reduce((s,a,j)=>s+Math.abs(a)*v[j],0)),norm=Math.hypot(...w);if(!norm)return 0;lam=norm;v=w.map(x=>x/norm)}return lam}
-function tableHTML(matrix){return `<table class="text-[10px] sm:text-xs w-full border-collapse font-mono tabular-nums"><thead><tr class="bg-slate-100"><th class="p-1 text-left">Row / Col</th>${['A1','A2','H1','H2','H_care','F_fin','P_poll'].map(x=>`<th class="p-1">${x}</th>`).join('')}</tr></thead><tbody>${matrix.map((row,i)=>`<tr class="border-t"><th class="p-1 text-left bg-slate-50 whitespace-nowrap">${ACCOUNTS[i]}</th>${row.map(v=>`<td class="p-1 text-center ${v<0?'bg-rose-100 text-rose-900':''}">${v.toFixed(3)}</td>`).join('')}</tr>`).join('')}</tbody></table>`}
-function renderBars(id,a,b){const max=Math.max(1,...a.map(Math.abs),...b.map(Math.abs))*1.15;document.getElementById(id).innerHTML=`<div class="space-y-1">${ACCOUNTS.map((name,i)=>`<div class="grid grid-cols-[76px_1fr_42px] items-center gap-2 text-[10px]"><span class="text-right">${name}</span><div class="space-y-0.5"><div class="h-2 bg-indigo-600 rounded" style="width:${Math.max(0,a[i])/max*100}%"></div><div class="h-1.5 bg-slate-300 rounded" style="width:${Math.max(0,b[i])/max*100}%"></div></div><span class="font-mono">${a[i].toFixed(2)}</span></div>`).join('')}</div>`}
-function updateDashboard(){const Mc=buildCoefficientMatrix(state),Mu=buildCoefficientMatrix(state,true),rho=spectralRadius(Mc);document.getElementById('spectral-radius-val').textContent=rho.toFixed(3);document.getElementById('instability-alert').classList.toggle('hidden',rho<.999);document.getElementById('stability-label').textContent=rho<.999?'Stable':'Unstable';document.getElementById('stability-label').className=`px-1.5 py-0.5 rounded ${rho<.999?'bg-emerald-500/20':'bg-rose-500/20'}`;
-const invC=invertMatrix(Mc.map((r,i)=>r.map((v,j)=>(i===j?1:0)-v))),invU=invertMatrix(Mu.map((r,i)=>r.map((v,j)=>(i===j?1:0)-v)));document.getElementById('raw-coupled').innerHTML=tableHTML(Mc);document.getElementById('raw-uncoupled').innerHTML=tableHTML(Mu);if(!invC||!invU)return;
-const x=[state.x_A1,state.x_A2,state.x_H1,0,0,state.x_Ffin,0],yc=multiply(invC,x),yu=multiply(invU,x);document.getElementById('total-shock-display').textContent=x.reduce((a,b)=>a+b,0).toFixed(1);
-const set=(id,v)=>document.getElementById(id).textContent=v;set('kpi-output',`${(yc[0]+yc[1]).toFixed(2)} Bn CU`);set('kpi-output-delta',`${((yc[0]+yc[1])-(yu[0]+yu[1])).toFixed(2)} Bn vs uncoupled`);set('kpi-income',`${(yc[2]+yc[3]).toFixed(2)} Bn CU`);set('kpi-income-delta',`${((yc[2]+yc[3])-(yu[2]+yu[3])).toFixed(2)} Bn vs uncoupled`);set('kpi-emissions',`${yc[6].toFixed(2)} Mt`);set('kpi-emissions-delta',`${(yc[6]-yu[6]).toFixed(2)} Mt vs uncoupled`);set('kpi-health',`${yc[4].toFixed(2)} Bn CU`);set('kpi-health-delta',`${(yc[4]-yu[4]).toFixed(2)} Bn vs uncoupled`);
-renderBars('chart-comparison-container',yc,yu);const r1=multiply(Mc,x);renderBars('chart-decomposition-container',yc,x.map((v,i)=>v+r1[i]));const shown=state.matrixView==='multiplier'?invC:Mc;document.getElementById('matrix-title').textContent=state.matrixView==='multiplier'?'Live Multiplier Matrix: (I - M)⁻¹':'Live Coupled Coefficient Matrix (M)';document.getElementById('live-matrix').innerHTML=tableHTML(shown);document.querySelectorAll('#live-matrix td').forEach((cell,index)=>{cell.addEventListener('mouseenter',()=>{const i=Math.floor(index/7),j=index%7;document.getElementById('inspector-text').textContent=`${ACCOUNTS[i]} ← ${ACCOUNTS[j]}: ${shown[i][j].toFixed(4)}`})})}
-function syncInputs(){for(const k of ['x_A1','x_A2','x_H1','x_Ffin']){const id=k.replace('_','-');document.getElementById(`slider-${id}`).value=state[k];document.getElementById(`num-${id}`).value=state[k]}}
-window.addEventListener('DOMContentLoaded',()=>{
-for(const k of ['x_A1','x_A2','x_H1','x_Ffin']){const id=k.replace('_','-'),s=document.getElementById(`slider-${id}`),n=document.getElementById(`num-${id}`);s.addEventListener('input',()=>{state[k]=+s.value;n.value=s.value;updateDashboard()});n.addEventListener('input',()=>{state[k]=+n.value;s.value=n.value;updateDashboard()})}
-for(const [id,key,label,format] of [['slider-health-burden','health_burden','val-health-burden',v=>`+${v.toFixed(2)} Bn/Mt`],['slider-damage-H1','damage_H1','val-damage-H1',v=>`-${v.toFixed(2)} Bn/Mt`],['slider-damage-H2','damage_H2','val-damage-H2',v=>`-${v.toFixed(2)} Bn/Mt`],['slider-e-A1','e_A1','val-e-A1',v=>`${v.toFixed(2)} Mt/Bn`],['slider-s-H1','s_H1','val-s-H1',v=>`${Math.round(v*100)}%`],['slider-s-H2','s_H2','val-s-H2',v=>`${Math.round(v*100)}%`]])document.getElementById(id).addEventListener('input',e=>{state[key]=+e.target.value;document.getElementById(label).textContent=format(state[key]);updateDashboard()});
-document.querySelectorAll('.preset-btn').forEach(b=>b.addEventListener('click',()=>{Object.assign(state,{x_A1:0,x_A2:0,x_H1:0,x_Ffin:0,e_A1:.40});if(b.dataset.preset==='A')state.x_A1=10;if(b.dataset.preset==='B')state.x_H1=10;if(b.dataset.preset==='C')state.x_Ffin=10;if(b.dataset.preset==='D')Object.assign(state,{x_A2:5,x_H1:3,x_Ffin:2,e_A1:.25});syncInputs();document.getElementById('slider-e-A1').value=state.e_A1;document.getElementById('val-e-A1').textContent=`${state.e_A1.toFixed(2)} Mt/Bn`;updateDashboard()}));
-document.getElementById('btn-reset').addEventListener('click',()=>document.querySelector('[data-preset="A"]').click());document.getElementById('refresh-raw-matrices').addEventListener('click',updateDashboard);document.getElementById('tab-multiplier').addEventListener('click',()=>{state.matrixView='multiplier';updateDashboard()});document.getElementById('tab-coefficient').addEventListener('click',()=>{state.matrixView='coefficient';updateDashboard()});updateDashboard()});
+/* =========================================================================
+   ENGINE  (pure functions, no DOM access)
+   ========================================================================= */
+(function (root) {
+  'use strict';
+
+  var BASE_P = { phi: 0.15, d1: 0.12, d2: 0.08, s1: 0.10, s2: 0.30, e1: 0.40 };
+  var BASE_X = { A1: 10, A2: 0, H1: 0, F: 0 };
+  var DIM = { open: 5, finance: 6, coupled: 7 };
+  var LAB = ['A1', 'A2', 'H1', 'H2', 'Hc', 'Ff', 'Pp'];
+  var PRESETS = {
+    A: { name: 'Policy A', sub: 'industrial stimulus', x: { A1: 10, A2: 0, H1: 0, F: 0 }, e1: 0.40 },
+    B: { name: 'Policy B', sub: 'transfer to low income', x: { A1: 0, A2: 0, H1: 10, F: 0 }, e1: 0.40 },
+    C: { name: 'Policy C', sub: 'credit injection', x: { A1: 0, A2: 0, H1: 0, F: 10 }, e1: 0.40 },
+    D: { name: 'Policy D', sub: 'green and equity mix', x: { A1: 0, A2: 5, H1: 3, F: 2 }, e1: 0.25 }
+  };
+
+  function coeffMatrix(p, closure) {
+    var a1 = (1 - p.s1) / 0.90;
+    var a2 = Math.max(0, 0.95 - p.s2) / 0.65;
+    var M = [
+      [0.20, 0.10, 0.30 * a1, 0.15 * a2, 0.15, 0.55, 0.00],
+      [0.10, 0.20, 0.50 * a1, 0.35 * a2, 0.25, 0.25, 0.00],
+      [0.20, 0.30, 0.00, 0.05, 0.20, 0.00, -p.d1],
+      [0.30, 0.25, 0.00, 0.00, 0.30, 0.00, -p.d2],
+      [0.00, 0.00, 0.10 * a1, 0.15 * a2, 0.00, 0.00, p.phi],
+      [0.00, 0.00, p.s1, p.s2, 0.00, 0.00, 0.00],
+      [p.e1, 0.10, 0.15, 0.20, 0.05, 0.00, 0.00]
+    ];
+    var n = DIM[closure];
+    return M.slice(0, n).map(function (r) { return r.slice(0, n); });
+  }
+
+  function invert(A) {
+    var n = A.length, i, j, k;
+    var aug = [];
+    for (i = 0; i < n; i++) {
+      aug.push(new Float64Array(2 * n));
+      for (j = 0; j < n; j++) aug[i][j] = A[i][j];
+      aug[i][n + i] = 1;
+    }
+    for (var col = 0; col < n; col++) {
+      var piv = col, best = Math.abs(aug[col][col]);
+      for (var r = col + 1; r < n; r++) {
+        if (Math.abs(aug[r][col]) > best) { best = Math.abs(aug[r][col]); piv = r; }
+      }
+      if (best < 1e-13) return null;
+      if (piv !== col) { var tmp = aug[col]; aug[col] = aug[piv]; aug[piv] = tmp; }
+      var pv = aug[col][col];
+      for (j = col; j < 2 * n; j++) aug[col][j] /= pv;
+      for (r = 0; r < n; r++) {
+        if (r === col) continue;
+        var f = aug[r][col];
+        if (f === 0) continue;
+        for (j = col; j < 2 * n; j++) aug[r][j] -= f * aug[col][j];
+      }
+    }
+    var out = [];
+    for (i = 0; i < n; i++) out.push(Array.prototype.slice.call(aug[i], n, 2 * n));
+    return out;
+  }
+
+  function matVec(A, x) {
+    return A.map(function (row) {
+      var s = 0;
+      for (var j = 0; j < x.length; j++) s += row[j] * x[j];
+      return s;
+    });
+  }
+
+  function shake4(x4, n) {
+    var v = [x4.A1, x4.A2, x4.H1, 0, 0, x4.F, 0];
+    return v.slice(0, n);
+  }
+
+  function solve(p, closure, x4) {
+    var M = coeffMatrix(p, closure);
+    var A = M.map(function (row, i) {
+      return row.map(function (v, j) { return (i === j ? 1 : 0) - v; });
+    });
+    var inv = invert(A);
+    var x = shake4(x4, M.length);
+    var y = inv ? matVec(inv, x) : null;
+    return { M: M, A: A, inv: inv, x: x, y: y };
+  }
+
+  function emissions(p, closure, y) {
+    if (!y) return null;
+    if (closure === 'coupled') return y[6];
+    return p.e1 * y[0] + 0.10 * y[1] + 0.15 * y[2] + 0.20 * y[3] + 0.05 * y[4];
+  }
+
+  /* --- characteristic polynomial (Faddeev-LeVerrier) --- */
+  function charPoly(A) {
+    var n = A.length, k, i, j;
+    var Mk = [];
+    for (i = 0; i < n; i++) { Mk.push(new Array(n).fill(0)); Mk[i][i] = 1; }
+    var c = [1];
+    for (k = 1; k <= n; k++) {
+      var AM = [];
+      for (i = 0; i < n; i++) {
+        AM.push(new Array(n).fill(0));
+        for (j = 0; j < n; j++) {
+          var s = 0;
+          for (var m = 0; m < n; m++) s += A[i][m] * Mk[m][j];
+          AM[i][j] = s;
+        }
+      }
+      var tr = 0;
+      for (i = 0; i < n; i++) tr += AM[i][i];
+      var ck = -tr / k;
+      c.push(ck);
+      for (i = 0; i < n; i++) for (j = 0; j < n; j++) Mk[i][j] = AM[i][j] + (i === j ? ck : 0);
+    }
+    return c;
+  }
+
+  /* --- roots (Durand-Kerner) --- */
+  function roots(c) {
+    var n = c.length - 1, i, j;
+    var rad = 0;
+    for (i = 1; i < c.length; i++) rad = Math.max(rad, Math.abs(c[i]));
+    rad = 1 + rad;
+    var re = [], im = [];
+    for (i = 0; i < n; i++) {
+      var th = 2 * Math.PI * i / n + 0.4;
+      re.push(rad * Math.cos(th)); im.push(rad * Math.sin(th));
+    }
+    function evalP(zr, zi) {
+      var vr = 0, vi = 0;
+      for (var k = 0; k < c.length; k++) {
+        var nr = vr * zr - vi * zi + c[k];
+        var ni = vr * zi + vi * zr;
+        vr = nr; vi = ni;
+      }
+      return [vr, vi];
+    }
+    for (var it = 0; it < 400; it++) {
+      var worst = 0;
+      for (i = 0; i < n; i++) {
+        var pv = evalP(re[i], im[i]);
+        var dr = 1, di = 0;
+        for (j = 0; j < n; j++) {
+          if (j === i) continue;
+          var ar = re[i] - re[j], ai = im[i] - im[j];
+          var nr2 = dr * ar - di * ai;
+          var ni2 = dr * ai + di * ar;
+          dr = nr2; di = ni2;
+        }
+        var den = dr * dr + di * di;
+        if (den < 1e-300) den = 1e-300;
+        var qr = (pv[0] * dr + pv[1] * di) / den;
+        var qi = (pv[1] * dr - pv[0] * di) / den;
+        re[i] -= qr; im[i] -= qi;
+        worst = Math.max(worst, Math.hypot(qr, qi));
+      }
+      if (worst < 1e-14) break;
+    }
+    return re.map(function (r, k) { return Math.hypot(r, im[k]); });
+  }
+
+  function spectralRadius(A) {
+    var r = roots(charPoly(A)), best = 0;
+    for (var i = 0; i < r.length; i++) if (r[i] > best) best = r[i];
+    return best;
+  }
+
+  function residual(A, inv) {
+    var n = A.length, worst = 0;
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < n; j++) {
+        var s = 0;
+        for (var k = 0; k < n; k++) s += A[i][k] * inv[k][j];
+        worst = Math.max(worst, Math.abs(s - (i === j ? 1 : 0)));
+      }
+    }
+    return worst;
+  }
+
+  function columnTotals(M, dropPollutionRow) {
+    var n = M.length, out = [];
+    var last = (dropPollutionRow && n === 7) ? 6 : n;
+    for (var j = 0; j < n; j++) {
+      var s = 0;
+      for (var i = 0; i < last; i++) s += M[i][j];
+      out.push(s);
+    }
+    return out;
+  }
+
+  function rounds(p, closure, x4, nRounds) {
+    var M = coeffMatrix(p, closure);
+    var x = shake4(x4, M.length);
+    var terms = [x.slice()], cur = x.slice();
+    for (var r = 1; r <= nRounds; r++) { cur = matVec(M, cur); terms.push(cur.slice()); }
+    return { M: M, terms: terms };
+  }
+
+  root.ENGINE = {
+    BASE_P: BASE_P, BASE_X: BASE_X, DIM: DIM, LAB: LAB, PRESETS: PRESETS,
+    coeffMatrix: coeffMatrix, invert: invert, matVec: matVec, solve: solve,
+    emissions: emissions, charPoly: charPoly, roots: roots,
+    spectralRadius: spectralRadius, residual: residual,
+    columnTotals: columnTotals, rounds: rounds, shake4: shake4
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<script>
+/* =========================================================================
+   INTERFACE
+   ========================================================================= */
+(function () {
+  'use strict';
+  var E = window.ENGINE;
+  var state = {
+    p: Object.assign({}, E.BASE_P),
+    x: Object.assign({}, E.BASE_X),
+    preset: 'A',
+    mClosure: 'coupled',
+    mView: 'multiplier',
+    rClosure: 'coupled'
+  };
+
+  var ACCT = [
+    { k: 'A1', name: 'Industry &amp; energy', short: 'Industry', unit: 'Bn CU', cls: 'a' },
+    { k: 'A2', name: 'Services &amp; technology', short: 'Services', unit: 'Bn CU', cls: 'a' },
+    { k: 'H1', name: 'Low-income households', short: 'Low income', unit: 'Bn CU', cls: 'g' },
+    { k: 'H2', name: 'High-income households', short: 'High income', unit: 'Bn CU', cls: 'g' },
+    { k: 'Hc', name: 'Health care', short: 'Health', unit: 'Bn CU', cls: 't' },
+    { k: 'Ff', name: 'Financial intermediation', short: 'Finance', unit: 'Bn CU', cls: 't' },
+    { k: 'Pp', name: 'Pollution', short: 'Pollution', unit: 'Mt', cls: 'r' }
+  ];
+
+  /* ---------------- formatting ---------------- */
+  function f(v, d) { d = d === undefined ? 2 : d; var s = (v).toFixed(d); return (s === '-0.00' || s === '-0.0') ? s.slice(1) : s; }
+  function sgn(v, d) { d = d === undefined ? 2 : d; var s = (v > 0 ? '+' : '') + f(v, d); return s; }
+  function pct(v, d) { d = d === undefined ? 1 : d; return (v > 0 ? '+' : '') + f(v, d) + '%'; }
+  function $(id) { return document.getElementById(id); }
+  function cell(t, c) { return '<td class="' + (c || '') + '">' + t + '</td>'; }
+
+  /* ---------------- controls ---------------- */
+  var SHOCK_DEF = [
+    { key: 'A1', label: 'Industry &amp; energy', sym: 'x<sub>A1</sub>' },
+    { key: 'A2', label: 'Services &amp; technology', sym: 'x<sub>A2</sub>' },
+    { key: 'H1', label: 'Transfer to low income', sym: 'x<sub>H1</sub>' },
+    { key: 'F', label: 'Credit injection', sym: 'x<sub>Ff</sub>' }
+  ];
+  var PARAM_DEF = [
+    { key: 'phi', label: 'Curative burden of pollution', sym: '&phi;', min: 0, max: 0.40, step: 0.01, unit: 'Bn/Mt', cls: 'r', dec: 2 },
+    { key: 'd1', label: 'Low-income morbidity', sym: '&delta;<sub>H1</sub>', min: 0, max: 0.30, step: 0.01, unit: 'Bn/Mt', cls: 'r', dec: 2, neg: true },
+    { key: 'd2', label: 'High-income morbidity', sym: '&delta;<sub>H2</sub>', min: 0, max: 0.25, step: 0.01, unit: 'Bn/Mt', cls: 'r', dec: 2, neg: true },
+    { key: 's1', label: 'Low-income saving rate', sym: 's<sub>H1</sub>', min: 0, max: 0.35, step: 0.01, unit: '', cls: 't', dec: 0, pctv: true },
+    { key: 's2', label: 'High-income saving rate', sym: 's<sub>H2</sub>', min: 0.05, max: 0.55, step: 0.01, unit: '', cls: 't', dec: 0, pctv: true },
+    { key: 'e1', label: 'Industry carbon intensity', sym: 'e<sub>A1</sub>', min: 0.10, max: 0.60, step: 0.01, unit: 'Mt/Bn', cls: 'a', dec: 2 }
+  ];
+
+  function buildControls() {
+    var box = $('presets');
+    Object.keys(E.PRESETS).forEach(function (k) {
+      var pr = E.PRESETS[k];
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'preset';
+      b.setAttribute('data-preset', k);
+      b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<span class="key">' + k + '</span><span style="flex:1"><span class="t">' + pr.name +
+        ' &mdash; ' + pr.sub + '</span><br><span class="s">' +
+        'x = [' + [pr.x.A1, pr.x.A2, pr.x.H1, 0, 0, pr.x.F, 0].join(', ') + ']' +
+        (pr.e1 !== 0.40 ? ' &middot; e<sub>A1</sub> = ' + pr.e1.toFixed(2) : '') +
+        '</span></span>';
+      b.addEventListener('click', function () { applyPreset(k); });
+      box.appendChild(b);
+    });
+
+    var sc = $('shockCtl');
+    SHOCK_DEF.forEach(function (d) {
+      var row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<div class="lab"><span>' + d.label + ' <span class="hint">' + d.sym + '</span></span>' +
+        '<span class="v" id="v-x-' + d.key + '">0.0 Bn</span></div>' +
+        '<input type="range" id="r-x-' + d.key + '" min="0" max="25" step="0.5" value="0" aria-label="' + d.label + '">';
+      sc.appendChild(row);
+      row.querySelector('input').addEventListener('input', function (e) {
+        state.x[d.key] = +e.target.value;
+        state.preset = null;
+        refresh();
+      });
+    });
+
+    var pc = $('paramCtl');
+    PARAM_DEF.forEach(function (d) {
+      var row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<div class="lab"><span>' + d.label + ' <span class="hint">' + d.sym + '</span></span>' +
+        '<span class="v" id="v-p-' + d.key + '"></span></div>' +
+        '<input type="range" class="' + d.cls + '" id="r-p-' + d.key + '" min="' + d.min + '" max="' + d.max +
+        '" step="' + d.step + '" aria-label="' + d.label + '">';
+      pc.appendChild(row);
+      row.querySelector('input').addEventListener('input', function (e) {
+        state.p[d.key] = +e.target.value;
+        refresh();
+      });
+    });
+  }
+
+  function syncControls() {
+    SHOCK_DEF.forEach(function (d) {
+      $('r-x-' + d.key).value = state.x[d.key];
+      $('v-x-' + d.key).textContent = state.x[d.key].toFixed(1) + ' Bn';
+    });
+    PARAM_DEF.forEach(function (d) {
+      $('r-p-' + d.key).value = state.p[d.key];
+      var v = state.p[d.key];
+      $('v-p-' + d.key).textContent = d.pctv ? Math.round(v * 100) + '%'
+        : (d.neg ? '\u2212' : '') + v.toFixed(d.dec) + (d.unit ? ' ' + d.unit : '');
+    });
+    var tot = state.x.A1 + state.x.A2 + state.x.H1 + state.x.F;
+    $('xTotal').textContent = tot.toFixed(1) + ' Bn';
+    document.querySelectorAll('.preset').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-preset') === state.preset));
+    });
+  }
+
+  function applyPreset(k) {
+    var pr = E.PRESETS[k];
+    state.x = Object.assign({}, pr.x);
+    state.p.e1 = pr.e1;
+    state.preset = k;
+    refresh();
+  }
+
+  /* ---------------- headline cards ---------------- */
+  function renderKpis() {
+    var c = E.solve(state.p, 'coupled', state.x);
+    var f6 = E.solve(state.p, 'finance', state.x);
+    var o5 = E.solve(state.p, 'open', state.x);
+    var yc = c.y, y6 = f6.y, y5 = o5.y;
+    var outC = yc[0] + yc[1], out6 = y6[0] + y6[1], out5 = y5[0] + y5[1];
+    var incC = yc[2] + yc[3], inc6 = y6[2] + y6[3], inc5 = y5[2] + y5[3];
+    var emC = E.emissions(state.p, 'coupled', yc), em6 = E.emissions(state.p, 'finance', y6);
+    var hcC = yc[4], hc6 = y6[4];
+
+    function delta(now, ref, unit, dir) {
+      var d = now - ref;
+      var cls = Math.abs(d) < 0.005 ? 'flat' : ((d * dir > 0) ? 'good' : 'bad');
+      var p = ref !== 0 ? (d / Math.abs(ref) * 100) : 0;
+      return '<div class="d ' + cls + '">' + sgn(d) + ' ' + unit + ' vs 6&times;6 (' + pct(p) + ')</div>';
+    }
+
+    var cards = [
+      { id: 'output', k: 'Gross output A1 + A2', v: f(outC) + ' <span style="font-size:13px;color:#64748b">Bn CU</span>',
+        d: delta(outC, out6, 'Bn', 1), note: '5&times;5: ' + f(out5) + ' &middot; 6&times;6: ' + f(out6) },
+      { id: 'income', k: 'Household income H1 + H2', v: f(incC) + ' <span style="font-size:13px;color:#64748b">Bn CU</span>',
+        d: delta(incC, inc6, 'Bn', 1), note: 'H1 ' + f(yc[2]) + ' &middot; H2 ' + f(yc[3]) + ' &middot; H1 share ' + (incC > 0 ? f(yc[2] / incC * 100, 1) + '%' : '\u2014') },
+      { id: 'emissions', k: 'Net emissions', v: f(emC) + ' <span style="font-size:13px;color:#64748b">Mt</span>',
+        d: delta(emC, em6, 'Mt', -1), note: 'per Bn of output: ' + (outC > 0 ? f(emC / outC, 3) : '\u2014') },
+      { id: 'health', k: 'Health spending Hc', v: f(hcC) + ' <span style="font-size:13px;color:#64748b">Bn CU</span>',
+        d: delta(hcC, hc6, 'Bn', -1), note: 'of which defensive: ' + f(Math.max(0, hcC - hc6), 2) + ' Bn' }
+    ];
+    $('kpis').innerHTML = cards.map(function (c) {
+      return '<div class="card kpi"><div class="k">' + c.k + '</div><div class="v" id="kpi-' + c.id + '">' + c.v + '</div>' +
+        c.d + '<div class="note">' + c.note + '</div></div>';
+    }).join('');
+  }
+
+  /* ---------------- comparison table ---------------- */
+  function renderCompare() {
+    var o = E.solve(state.p, 'open', state.x);
+    var f6 = E.solve(state.p, 'finance', state.x);
+    var c = E.solve(state.p, 'coupled', state.x);
+    var y5 = o.y, y6 = f6.y, yc = c.y;
+    var em = function (clo, y) { return E.emissions(state.p, clo, y); };
+
+    var xF = state.x.F;
+    var rows = [
+      { label: 'Industry output (A1)', v: [y5[0], y6[0], yc[0]], unit: 'Bn' },
+      { label: 'Services output (A2)', v: [y5[1], y6[1], yc[1]], unit: 'Bn' },
+      { label: 'Gross output', v: [y5[0] + y5[1], y6[0] + y6[1], yc[0] + yc[1]], unit: 'Bn', total: true },
+      { label: 'Low-income income (H1)', v: [y5[2], y6[2], yc[2]], unit: 'Bn' },
+      { label: 'High-income income (H2)', v: [y5[3], y6[3], yc[3]], unit: 'Bn' },
+      { label: 'Household income', v: [y5[2] + y5[3], y6[2] + y6[3], yc[2] + yc[3]], unit: 'Bn', total: true },
+      { label: 'Health spending (Hc)', v: [y5[4], y6[4], yc[4]], unit: 'Bn', invert: true },
+      { label: 'Financial credit (Ff)', v: [null, y6[5], yc[5]], unit: 'Bn' },
+      { label: 'Net emissions (Pp)', v: [em('open', y5), em('finance', y6), em('coupled', yc)], unit: 'Mt', total: true, invert: true }
+    ];
+    var head = '<thead><tr><th>Outcome</th><th>Open 5&times;5</th><th>Fin. closed 6&times;6</th>' +
+      '<th>Coupled 7&times;7</th><th>7&times;7 vs 6&times;6</th></tr></thead>';
+    var body = rows.map(function (r) {
+      var d = (r.v[1] !== null && r.v[2] !== null && r.v[1] !== 0) ? (r.v[2] - r.v[1]) / Math.abs(r.v[1]) * 100 : null;
+      var cls = r.total ? ' class="total"' : '';
+      return '<tr' + cls + '>' + cell(r.label) +
+        r.v.map(function (v) {
+          return v === null ? cell('n/a', 'sub') : cell(f(v));
+        }).join('') +
+        cell(d === null ? '&mdash;' : pct(d), d === null ? 'sub' : (Math.abs(d) < 0.05 ? '' : ((d > 0) !== !!r.invert ? 'pos' : 'neg'))) + '</tr>';
+    }).join('');
+    $('cmpTable').innerHTML = head + '<tbody>' + body + '</tbody>';
+
+    var notes = [];
+    notes.push('Units: Bn CU for monetary rows, Mt CO<sub>2</sub>e for emissions.');
+    if (xF > 0) notes.push('The open 5&times;5 model has no financial account, so the part of the shock addressed to Ff (' + f(xF, 1) + ' Bn CU) is not represented there; its other entries are computed with that part set to zero.');
+    notes.push('The 7&times;7 column is the fully coupled system: the difference from 6&times;6 is the net effect of endogenising pollution.');
+    $('cmpFoot').innerHTML = notes.join(' ');
+    $('cmpNote').textContent = state.preset ? 'Policy ' + state.preset + ' \u00b7 current parameters' : 'custom shock \u00b7 current parameters';
+  }
+
+  /* ---------------- charts ---------------- */
+  function barChart(el, labels, series) {
+    var n = labels.length;
+    var rowH = 46, padL = 96, padR = 56, padT = 8, W = 660;
+    var H = padT + n * rowH + 10;
+    var all = [1];
+    series.forEach(function (s) { s.values.forEach(function (v) { if (v !== null) all.push(Math.abs(v)); }); });
+    var max = Math.max.apply(null, all) * 1.10;
+    var bw = W - padL - padR;
+    var k = series.length;
+    var bh = Math.min(11, (rowH - 10) / k - 2);
+    var svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="bar chart">';
+    svg += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (H - 10) + '" stroke="#e2e8f0"/>';
+    labels.forEach(function (lab, i) {
+      var y0 = padT + i * rowH;
+      svg += '<text x="' + (padL - 10) + '" y="' + (y0 + rowH / 2 + 4) + '" text-anchor="end" font-size="11" fill="#475569">' + lab + '</text>';
+      series.forEach(function (s, si) {
+        var v = s.values[i];
+        var yy = y0 + 5 + si * (bh + 3);
+        if (v === null) {
+          svg += '<text x="' + (padL + 4) + '" y="' + (yy + bh - 1) + '" font-size="9" fill="#cbd5e1">n/a</text>';
+          return;
+        }
+        var w = Math.max(0.8, Math.abs(v) / max * bw);
+        svg += '<rect x="' + padL + '" y="' + yy + '" width="' + w + '" height="' + bh + '" rx="2" fill="' + s.color + '" opacity="' + (s.opacity || 1) + '"/>';
+        svg += '<text x="' + (W - 4) + '" y="' + (yy + bh - 1.5) + '" text-anchor="end" font-size="9.5" font-family="ui-monospace,monospace" fill="#64748b">' + f(v) + '</text>';
+      });
+    });
+    svg += '</svg>';
+    el.innerHTML = svg;
+  }
+
+  function renderCharts() {
+    var o = E.solve(state.p, 'open', state.x);
+    var f6 = E.solve(state.p, 'finance', state.x);
+    var c = E.solve(state.p, 'coupled', state.x);
+    var y5 = o.y, y6 = f6.y, yc = c.y;
+    var labels = ['A1 industry', 'A2 services', 'H1 low income', 'H2 high income', 'Hc health', 'Ff finance', 'Pp pollution'];
+    barChart($('chartClosure'), labels, [
+      { name: '5x5', color: '#94a3b8', values: [y5[0], y5[1], y5[2], y5[3], y5[4], null, null] },
+      { name: '6x6', color: '#0f766e', values: [y6[0], y6[1], y6[2], y6[3], y6[4], y6[5], null] },
+      { name: '7x7', color: '#4338ca', values: [yc[0], yc[1], yc[2], yc[3], yc[4], yc[5], yc[6]] }
+    ]);
+    $('legendClosure').innerHTML =
+      '<span><i style="background:#94a3b8"></i>Open 5&times;5</span>' +
+      '<span><i style="background:#0f766e"></i>Financially closed 6&times;6</span>' +
+      '<span><i style="background:#4338ca"></i>Coupled 7&times;7</span>' +
+      '<span style="color:#94a3b8">Pollution is measured in Mt and finance does not exist in the 5&times;5 closure</span>';
+
+    // anatomy: direct + first round + remainder
+    var rs = E.rounds(state.p, 'coupled', state.x, 1);
+    var x = rs.terms[0], first = rs.terms[1];
+    var direct = [], round1 = [], rest = [];
+    for (var i = 0; i < 7; i++) {
+      direct.push(x[i]);
+      round1.push(first[i]);
+      rest.push(yc[i] - x[i] - first[i]);
+    }
+    var W = 660, padL = 96, padR = 56, rowH = 34, H = 8 + 7 * rowH + 8;
+    var maxv = Math.max.apply(null, direct.map(Math.abs).concat(round1.map(Math.abs)).concat(rest.map(Math.abs)).concat([1])) * 1.02;
+    var bw = W - padL - padR;
+    var svg = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="decomposition">';
+    svg += '<line x1="' + padL + '" y1="6" x2="' + padL + '" y2="' + (H - 8) + '" stroke="#e2e8f0"/>';
+    labels.forEach(function (lab, i) {
+      var y = 8 + i * rowH;
+      svg += '<text x="' + (padL - 10) + '" y="' + (y + 17) + '" text-anchor="end" font-size="10.5" fill="#475569">' + lab + '</text>';
+      var acc = 0;
+      [{ v: direct[i], c: '#312e81' }, { v: round1[i], c: '#6366f1' }, { v: rest[i], c: '#c7d2fe' }].forEach(function (sg) {
+        if (sg.v <= 0.0005) return;
+        var w = sg.v / maxv * bw;
+        svg += '<rect x="' + (padL + acc) + '" y="' + (y + 5) + '" width="' + w + '" height="16" rx="2" fill="' + sg.c + '"/>';
+        acc += w;
+      });
+      svg += '<text x="' + (W - 4) + '" y="' + (y + 18) + '" text-anchor="end" font-size="9.5" font-family="ui-monospace,monospace" fill="#64748b">' + f(yc[i]) + '</text>';
+    });
+    svg += '</svg>';
+    $('chartRounds').innerHTML = svg;
+    $('legendRounds').innerHTML =
+      '<span><i style="background:#312e81"></i>Direct injection x</span>' +
+      '<span><i style="background:#6366f1"></i>First round Mx</span>' +
+      '<span><i style="background:#c7d2fe"></i>All later rounds</span>';
+  }
+
+  /* ---------------- rounds table ---------------- */
+  function renderRounds() {
+    var clo = state.rClosure;
+    var rs = E.rounds(state.p, clo, state.x, 6);
+    var sol = E.solve(state.p, clo, state.x);
+    var n = E.DIM[clo];
+    var tot = sol.y;
+    var cum = new Array(n).fill(0);
+    var head = '<thead><tr><th>Round</th>' + E.LAB.slice(0, n).map(function (l) { return '<th>' + l + '</th>'; }).join('') + '</tr></thead>';
+    var rows = '';
+    for (var r = 0; r < rs.terms.length; r++) {
+      var t = rs.terms[r];
+      for (var i = 0; i < n; i++) cum[i] += t[i];
+      rows += '<tr><td>&kappa; = ' + r + (r === 0 ? ' <span class="hint">direct</span>' : '') + '</td>' +
+        t.map(function (v) { return cell(f(v)); }).join('') + '</tr>';
+    }
+    var tail = tot.map(function (v, i) { return v - cum[i]; });
+    rows += '<tr class="sub"><td>all later rounds</td>' + tail.map(function (v) { return cell(f(v)); }).join('') + '</tr>';
+    rows += '<tr class="total"><td>total y</td>' + tot.map(function (v) { return cell(f(v)); }).join('') + '</tr>';
+    $('roundTable').innerHTML = head + '<tbody>' + rows + '</tbody>';
+    $('roundNote').innerHTML = 'Increments are ' + '<span class="mono">M<sup>&kappa;</sup>x</span>; the row "all later rounds" is the remainder of the power series, ' +
+      'and the final row is the exact solution. Convergence is guaranteed by &rho;(M) &lt; 1 and the increments decay, though not monotonically: the ' +
+      'coefficient matrix has negative eigenvalues, so the approach oscillates before it settles.';
+    document.querySelectorAll('#roundTabs button').forEach(function (b) {
+      b.setAttribute('aria-selected', String(b.getAttribute('data-c') === clo));
+    });
+  }
+
+  /* ---------------- matrix ---------------- */
+  function renderMatrix() {
+    var clo = state.mClosure;
+    var sol = E.solve(state.p, clo, state.x);
+    var n = E.DIM[clo];
+    var mat = state.mView === 'multiplier' ? sol.inv : sol.M;
+    var labels = E.LAB.slice(0, n);
+    var head = '<thead><tr><th>Row \\ Col</th>' + labels.map(function (l) { return '<th>' + l + '</th>'; }).join('') + '</tr></thead>';
+    var body = mat.map(function (row, i) {
+      return '<tr><td>' + labels[i] + '</td>' + row.map(function (v, j) {
+        var cls = v < -0.0005 ? 'neg' : (i === j ? 'diag' : '');
+        return '<td class="' + cls + '" data-i="' + i + '" data-j="' + j + '">' + f(v, 2) + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    var foot = '';
+    if (state.mView === 'coefficient') {
+      var sums = E.columnTotals(mat, true);
+      foot = '<tfoot><tr><td>&Sigma; monetary rows</td>' +
+        sums.map(function (v) { return '<td>' + f(v, 3) + '</td>'; }).join('') + '</tr>';
+      if (n === 7) {
+        var all = E.columnTotals(mat, false);
+        foot += '<tr><td>&Sigma; incl. pollution row</td>' +
+          all.map(function (v) { return '<td>' + f(v, 3) + '</td>'; }).join('') + '</tr>';
+      }
+      foot += '</tfoot>';
+    }
+    $('matrixTable').innerHTML = head + '<tbody>' + body + '</tbody>' + foot;
+
+    // hover inspector
+    Array.prototype.forEach.call($('matrixTable').querySelectorAll('tbody td[data-i]'), function (td) {
+      var show = function () {
+        var i = +td.getAttribute('data-i'), j = +td.getAttribute('data-j');
+        var v = mat[i][j];
+        $('inspector').innerHTML = (state.mView === 'multiplier' ? 'Multiplier' : 'Coefficient') +
+          ': effect on <strong>' + labels[i] + '</strong> of one unit of <strong>' + labels[j] + '</strong> = ' +
+          '<strong class="mono">' + v.toFixed(4) + '</strong>' +
+          (state.mView === 'multiplier'
+            ? ' &nbsp;<span class="hint">(units of ' + ACCT[i].unit + ' per unit of ' + ACCT[j].unit + ')</span>'
+            : '');
+      };
+      td.addEventListener('mouseenter', show);
+      td.addEventListener('click', show);
+    });
+
+    $('matrixNote').innerHTML = state.mView === 'multiplier'
+      ? 'Entry (i, j) is the total effect on account i of a one-unit injection into account j, after all rounds. Diagonal cells are shaded.'
+      : 'Column j is the expenditure pattern of account j. The last row of the table gives the column totals: household and financial columns sum to 1.000, industry and service columns fall short by imports, and the pollution column is a vector of marginal responses in Bn CU per Mt, not shares.';
+    document.querySelectorAll('#mClosureTabs button').forEach(function (b) {
+      b.setAttribute('aria-selected', String(b.getAttribute('data-c') === clo));
+    });
+    document.querySelectorAll('#mViewTabs button').forEach(function (b) {
+      b.setAttribute('aria-selected', String(b.getAttribute('data-v') === state.mView));
+    });
+  }
+
+  /* ---------------- diagnostics ---------------- */
+  function renderDiag() {
+    var sol = E.solve(state.p, 'coupled', state.x);
+    var rho = E.spectralRadius(sol.M);
+    var res = E.residual(sol.A, sol.inv);
+    var cols = E.columnTotals(sol.M, true);
+    var rows = [
+      ['&rho;(M), coupled', f(rho, 4)],
+      ['Hawkins&ndash;Simon', rho < 1 ? '<span class="tag t">satisfied</span>' : '<span class="tag r">violated</span>'],
+      ['Inversion residual', res.toExponential(1)],
+      ['H1 column total', f(cols[2], 4)],
+      ['H2 column total', f(cols[3], 4)],
+      ['Ff column total', f(cols[5], 4)]
+    ];
+    $('diagBody').innerHTML = rows.map(function (r) {
+      return '<tr><td style="font-family:inherit">' + r[0] + '</td><td style="text-align:right">' + r[1] + '</td></tr>';
+    }).join('');
+    var ok = rho < 1;
+    $('badge').classList.toggle('warn', !ok);
+    $('rhoVal').textContent = f(rho, 3);
+    $('rhoState').textContent = ok ? 'stable' : 'unstable';
+  }
+
+  /* ---------------- reference table ---------------- */
+  function renderRef() {
+    var order = [['open', '5&times;5'], ['finance', '6&times;6'], ['coupled', '7&times;7']];
+    var head = '<thead><tr><th>Closure</th><th>Scenario</th><th>A1</th><th>A2</th><th>Output</th><th>H1</th><th>H2</th><th>Hc</th><th>Ff</th><th>Emis.</th></tr></thead>';
+    var body = '';
+    order.forEach(function (o) {
+      Object.keys(E.PRESETS).forEach(function (k, idx) {
+        var pr = E.PRESETS[k];
+        if (o[0] === 'open' && k === 'C') {
+          body += '<tr><td>' + o[1] + '</td><td>' + pr.name + ' <span class="tag g">n/a</span></td>' +
+            '<td colspan="8" class="sub" style="text-align:left">no financial account in the open model</td></tr>';
+          return;
+        }
+        var p = Object.assign({}, E.BASE_P, { e1: pr.e1 });
+        var sol = E.solve(p, o[0], pr.x);
+        var y = sol.y;
+        var em = E.emissions(p, o[0], y);
+        body += '<tr><td>' + o[1] + '</td><td>' + pr.name + '</td>' +
+          cell(f(y[0])) + cell(f(y[1])) + cell(f(y[0] + y[1]), 'b') +
+          cell(f(y[2])) + cell(f(y[3])) + cell(f(y[4])) +
+          cell(o[0] === 'open' ? '&mdash;' : f(y[5]), o[0] === 'open' ? 'sub' : '') +
+          cell(f(em)) + '</tr>';
+      });
+    });
+    $('refTable').innerHTML = head + '<tbody>' + body + '</tbody>';
+  }
+
+  /* ---------------- refresh ---------------- */
+  function refresh() {
+    syncControls();
+    renderKpis();
+    renderCompare();
+    renderCharts();
+    renderRounds();
+    renderMatrix();
+    renderDiag();
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    buildControls();
+    document.querySelectorAll('#mClosureTabs button').forEach(function (b) {
+      b.addEventListener('click', function () { state.mClosure = b.getAttribute('data-c'); renderMatrix(); });
+    });
+    document.querySelectorAll('#mViewTabs button').forEach(function (b) {
+      b.addEventListener('click', function () { state.mView = b.getAttribute('data-v'); renderMatrix(); });
+    });
+    document.querySelectorAll('#roundTabs button').forEach(function (b) {
+      b.addEventListener('click', function () { state.rClosure = b.getAttribute('data-c'); renderRounds(); });
+    });
+    $('btnReset').addEventListener('click', function () {
+      state.p = Object.assign({}, E.BASE_P);
+      state.x = Object.assign({}, E.BASE_X);
+      state.preset = 'A';
+      refresh();
+    });
+    state.preset = 'A';
+    refresh();
+    renderRef();
+  });
+})();
 </script>
 </body>
 </html>
+
+\end{lstlisting}
